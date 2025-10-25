@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRoute, useLocation } from "wouter";
 import { Header } from "@/components/Header";
 import { VideoUploadZone } from "@/components/VideoUploadZone";
 import { VideoPlayer } from "@/components/VideoPlayer";
@@ -10,10 +11,19 @@ import { useToast } from "@/hooks/use-toast";
 import { VideoPoseAnalyzer } from "@/lib/poseAnalyzer";
 
 export default function Home() {
+  const [, params] = useRoute("/analyses/:id");
+  const [, setLocation] = useLocation();
   const [currentAnalysisId, setCurrentAnalysisId] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const { toast } = useToast();
+  
+  // Load analysis from URL parameter if present
+  useEffect(() => {
+    if (params?.id) {
+      setCurrentAnalysisId(params.id);
+    }
+  }, [params]);
 
   const { data: currentAnalysis, isLoading } = useQuery<VideoAnalysis>({
     queryKey: ["/api/analyses", currentAnalysisId],
@@ -100,6 +110,7 @@ export default function Home() {
       console.log("Analysis created:", analysis.id);
 
       setCurrentAnalysisId(analysis.id);
+      setLocation(`/analyses/${analysis.id}`);
       queryClient.invalidateQueries({ queryKey: ["/api/analyses"] });
 
       toast({
@@ -122,10 +133,11 @@ export default function Home() {
 
   const handleNewAnalysis = () => {
     setCurrentAnalysisId(null);
+    setLocation("/");
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="h-screen w-screen max-w-full overflow-x-hidden flex flex-col bg-background">
       <Header onNewAnalysis={currentAnalysis ? handleNewAnalysis : undefined} />
       
       {!currentAnalysis ? (
@@ -147,12 +159,12 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px] gap-0 overflow-hidden">
-          <div className="flex flex-col p-4 lg:p-6 overflow-y-auto">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px] gap-0 overflow-hidden w-full max-w-full">
+          <div className="flex flex-col p-4 lg:p-6 overflow-y-auto w-full max-w-full min-w-0">
             <VideoPlayer videoUrl={currentAnalysis.videoUrl} />
           </div>
           
-          <div className="border-t lg:border-t-0 lg:border-l bg-card/50 overflow-y-auto">
+          <div className="border-t lg:border-t-0 lg:border-l bg-card/50 overflow-y-auto w-full max-w-full min-w-0">
             <AnalysisDashboard analysis={currentAnalysis} />
           </div>
         </div>

@@ -32,8 +32,8 @@ export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
   };
 
   return (
-    <div className="h-full w-full flex flex-col overflow-hidden">
-      <div className="px-3 sm:px-4 pt-3 pb-2 border-b flex-shrink-0 space-y-2">
+    <div className="h-full w-full max-w-full flex flex-col overflow-hidden min-w-0">
+      <div className="px-3 sm:px-4 pt-3 pb-2 border-b flex-shrink-0 space-y-2 w-full max-w-full">
         <div className="flex items-center justify-center gap-2 px-2 py-1 rounded-md bg-chart-4/10 border border-chart-4/20">
           <div className="h-2 w-2 rounded-full bg-chart-4 animate-pulse" />
           <span className="text-[10px] sm:text-xs font-semibold text-chart-4">Real MediaPipe Analysis</span>
@@ -50,13 +50,13 @@ export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
         </Button>
       </div>
 
-      <Tabs defaultValue="overview" className="flex-1 flex flex-col overflow-hidden min-h-0">
-        <div className="px-3 sm:px-4 pt-3 pb-2 flex-shrink-0">
-          <TabsList className="grid w-full grid-cols-4 text-xs" data-testid="tabs-analysis">
-            <TabsTrigger value="overview" className="px-1 text-[10px] sm:text-xs">Overview</TabsTrigger>
-            <TabsTrigger value="detailed" className="px-1 text-[10px] sm:text-xs">Detailed</TabsTrigger>
-            <TabsTrigger value="corrections" className="px-1 text-[10px] sm:text-xs">Fixes</TabsTrigger>
-            <TabsTrigger value="progress" className="px-1 text-[10px] sm:text-xs">Progress</TabsTrigger>
+      <Tabs defaultValue="overview" className="flex-1 flex flex-col overflow-hidden min-h-0 w-full max-w-full min-w-0">
+        <div className="px-3 sm:px-4 pt-3 pb-2 flex-shrink-0 w-full max-w-full min-w-0">
+          <TabsList className="grid w-full max-w-full grid-cols-4 text-xs" data-testid="tabs-analysis">
+            <TabsTrigger value="overview" className="px-1 text-[10px] sm:text-xs min-w-0">Overview</TabsTrigger>
+            <TabsTrigger value="detailed" className="px-1 text-[10px] sm:text-xs min-w-0">Detailed</TabsTrigger>
+            <TabsTrigger value="corrections" className="px-1 text-[10px] sm:text-xs min-w-0">Fixes</TabsTrigger>
+            <TabsTrigger value="progress" className="px-1 text-[10px] sm:text-xs min-w-0">Progress</TabsTrigger>
           </TabsList>
         </div>
 

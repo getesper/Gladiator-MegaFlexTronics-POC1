@@ -63,11 +63,11 @@ export function VideoPlayer({ videoUrl }: VideoPlayerProps) {
   };
 
   return (
-    <div className="relative bg-black rounded-lg overflow-hidden" data-testid="video-player">
+    <div className="relative bg-black rounded-lg overflow-hidden w-full max-w-full" data-testid="video-player">
       <video
         ref={videoRef}
         src={videoUrl}
-        className="w-full aspect-video"
+        className="w-full max-w-full aspect-video"
         onClick={togglePlay}
       />
       
