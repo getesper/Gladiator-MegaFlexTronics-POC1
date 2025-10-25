@@ -32,7 +32,7 @@ export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
   };
 
   return (
-    <div className="h-full w-full max-w-full flex flex-col overflow-hidden min-w-0 lg:max-w-[480px]">
+    <div className="h-full w-full flex flex-col overflow-hidden">
       <div className="px-3 sm:px-4 pt-3 pb-2 border-b flex-shrink-0 space-y-2 w-full max-w-full">
         <div className="flex items-center justify-center gap-2 px-2 py-1 rounded-md bg-chart-4/10 border border-chart-4/20">
           <div className="h-2 w-2 rounded-full bg-chart-4 animate-pulse" />
@@ -60,8 +60,8 @@ export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
           </TabsList>
         </div>
 
-        <ScrollArea className="flex-1 min-h-0">
-          <div className="p-3 sm:p-4 pt-2 space-y-4 max-w-full">
+        <ScrollArea className="flex-1 min-h-0 w-full">
+          <div className="p-3 sm:p-4 pt-2 space-y-4 w-full">
             <TabsContent value="overview" className="mt-0 space-y-4 max-w-full">
               <CategorySelector
                 selectedCategory={selectedCategory}

@@ -164,7 +164,7 @@ export default function Home() {
             <VideoPlayer videoUrl={currentAnalysis.videoUrl} />
           </div>
           
-          <div className="w-full lg:w-96 xl:w-[420px] border-t lg:border-t-0 lg:border-l bg-card/50 overflow-y-auto flex-shrink-0 max-w-full">
+          <div className="w-full lg:w-96 xl:w-[420px] border-t lg:border-t-0 lg:border-l bg-card/50 overflow-y-auto overflow-x-hidden flex-shrink-0">
             <AnalysisDashboard analysis={currentAnalysis} />
           </div>
         </div>
