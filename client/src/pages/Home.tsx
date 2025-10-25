@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function Home() {
   const [currentAnalysisId, setCurrentAnalysisId] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const { toast } = useToast();
 
   const { data: currentAnalysis, isLoading } = useQuery<VideoAnalysis>({
@@ -18,25 +19,39 @@ export default function Home() {
   });
 
   const handleVideoSelect = async (file: File) => {
+    setIsAnalyzing(true);
     try {
+      console.log("Starting video upload:", file.name, file.size);
+      
       // Get upload URL from backend
+      console.log("Requesting upload URL...");
       const { uploadURL } = await apiRequest<{ uploadURL: string }>("/api/objects/upload", {
         method: "POST",
       });
+      console.log("Got upload URL:", uploadURL);
 
       // Upload video to object storage
-      await fetch(uploadURL, {
+      console.log("Uploading to object storage...");
+      const uploadResponse = await fetch(uploadURL, {
         method: "PUT",
         body: file,
         headers: {
           "Content-Type": file.type,
         },
       });
+      
+      if (!uploadResponse.ok) {
+        throw new Error(`Upload failed with status ${uploadResponse.status}`);
+      }
+      console.log("Upload successful");
 
       // Get video duration
+      console.log("Getting video duration...");
       const duration = await getVideoDuration(file);
+      console.log("Video duration:", duration);
 
       // Create analysis
+      console.log("Creating analysis...");
       const analysis = await apiRequest<VideoAnalysis>("/api/analyses", {
         method: "POST",
         body: JSON.stringify({
@@ -46,6 +61,7 @@ export default function Home() {
           category: "bodybuilding",
         }),
       });
+      console.log("Analysis created:", analysis.id);
 
       setCurrentAnalysisId(analysis.id);
       queryClient.invalidateQueries({ queryKey: ["/api/analyses"] });
@@ -55,12 +71,15 @@ export default function Home() {
         description: "Your video has been analyzed successfully!",
       });
     } catch (error) {
-      console.error("Upload error:", error);
+      console.error("Upload error details:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       toast({
         title: "Upload Failed",
-        description: "Failed to upload and analyze video. Please try again.",
+        description: `Failed to upload and analyze video: ${errorMessage}`,
         variant: "destructive",
       });
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
@@ -80,7 +99,7 @@ export default function Home() {
                 Analyze Your Form
               </h2>
               <p className="text-muted-foreground text-lg">
-                Upload a video to get instant AI-powered pose analysis
+                {isAnalyzing ? "Analyzing your video..." : "Upload a video to get instant AI-powered pose analysis"}
               </p>
             </div>
             <VideoUploadZone onVideoSelect={handleVideoSelect} />
@@ -88,11 +107,11 @@ export default function Home() {
         </div>
       ) : (
         <div className="flex-1 flex overflow-hidden">
-          <div className="flex-1 flex flex-col p-6 overflow-hidden">
+          <div className="flex-1 flex flex-col p-6 overflow-y-auto">
             <VideoPlayer videoUrl={currentAnalysis.videoUrl} />
           </div>
           
-          <div className="w-[400px] border-l bg-card/50 overflow-hidden">
+          <div className="w-[400px] border-l bg-card/50 overflow-y-auto">
             <AnalysisDashboard analysis={currentAnalysis} />
           </div>
         </div>
