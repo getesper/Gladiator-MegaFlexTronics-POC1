@@ -1,30 +1,63 @@
-import { Clock, Target, Activity, TrendingUp, AlertCircle, CheckCircle, Ruler } from "lucide-react";
+import { useState } from "react";
+import { Clock, Target, TrendingUp, AlertCircle, CheckCircle, Ruler } from "lucide-react";
 import { MetricCard } from "./MetricCard";
 import { FormScoreCard } from "./FormScoreCard";
 import { SymmetryCard } from "./SymmetryCard";
 import { MuscleGroupCard } from "./MuscleGroupCard";
 import { ConditioningCard } from "./ConditioningCard";
 import { PosingCard } from "./PosingCard";
+import { CategorySelector } from "./CategorySelector";
+import { DetailedScoreBreakdown } from "./DetailedScoreBreakdown";
+import { ComparisonMode } from "./ComparisonMode";
+import { PoseCorrections } from "./PoseCorrections";
+import { JudgingNotes } from "./JudgingNotes";
 import { FrameTimeline } from "./FrameTimeline";
 import { RecommendationCard } from "./RecommendationCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
 
 export function AnalysisDashboard() {
+  const [selectedCategory, setSelectedCategory] = useState("bodybuilding");
+
+  const handleExport = () => {
+    console.log("Exporting analysis report...");
+  };
+
   return (
     <div className="h-full flex flex-col">
+      <div className="px-6 pt-4 pb-2 border-b">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleExport}
+          className="w-full"
+          data-testid="button-export-report"
+        >
+          <Download className="mr-2 h-4 w-4" />
+          Export Report
+        </Button>
+      </div>
+
       <Tabs defaultValue="overview" className="flex-1 flex flex-col">
-        <div className="px-6 pt-6 pb-2">
-          <TabsList className="grid w-full grid-cols-3" data-testid="tabs-analysis">
+        <div className="px-6 pt-4 pb-2">
+          <TabsList className="grid w-full grid-cols-4 text-xs" data-testid="tabs-analysis">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="detailed">Detailed</TabsTrigger>
-            <TabsTrigger value="recommendations">Tips</TabsTrigger>
+            <TabsTrigger value="corrections">Fixes</TabsTrigger>
+            <TabsTrigger value="progress">Progress</TabsTrigger>
           </TabsList>
         </div>
 
         <ScrollArea className="flex-1">
           <div className="p-6 pt-4">
             <TabsContent value="overview" className="mt-0 space-y-6">
+              <CategorySelector
+                selectedCategory={selectedCategory}
+                onCategoryChange={setSelectedCategory}
+              />
+
               <div className="grid grid-cols-2 gap-4">
                 <MetricCard
                   title="Poses Analyzed"
@@ -64,12 +97,11 @@ export function AnalysisDashboard() {
               </div>
 
               <PosingCard />
-              <ConditioningCard />
-              <MuscleGroupCard />
-              <SymmetryCard />
+              <DetailedScoreBreakdown />
+              <JudgingNotes />
 
               <div className="space-y-3">
-                <h3 className="font-heading font-semibold text-sm">Proportions</h3>
+                <h3 className="font-heading font-semibold text-sm">Body Measurements</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between p-3 rounded-md bg-card border">
                     <span>Shoulder Width</span>
@@ -80,18 +112,31 @@ export function AnalysisDashboard() {
                     <span className="font-semibold">34cm</span>
                   </div>
                   <div className="flex justify-between p-3 rounded-md bg-card border">
-                    <span>Upper/Lower Body Ratio</span>
-                    <span className="font-semibold">1.15</span>
+                    <span>V-Taper Ratio</span>
+                    <span className="font-semibold">1.42</span>
                   </div>
                   <div className="flex justify-between p-3 rounded-md bg-card border">
-                    <span>Left/Right Symmetry</span>
-                    <span className="font-semibold">96%</span>
+                    <span>Upper/Lower Ratio</span>
+                    <span className="font-semibold">1.15</span>
                   </div>
                 </div>
               </div>
             </TabsContent>
 
-            <TabsContent value="recommendations" className="mt-0 space-y-4">
+            <TabsContent value="corrections" className="mt-0 space-y-6">
+              <PoseCorrections />
+              <ConditioningCard />
+              <MuscleGroupCard />
+              <SymmetryCard />
+            </TabsContent>
+
+            <TabsContent value="progress" className="mt-0 space-y-6">
+              <ComparisonMode />
+              <FormScoreCard score={86} />
+              <FrameTimeline />
+            </TabsContent>
+
+            <TabsContent value="recommendations" className="mt-0 space-y-4 hidden">
               <RecommendationCard
                 icon={CheckCircle}
                 title="Excellent Muscularity"
