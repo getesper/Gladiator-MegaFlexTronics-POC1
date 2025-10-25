@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 export default function Home() {
   const [currentAnalysisId, setCurrentAnalysisId] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const { toast } = useToast();
 
   const { data: currentAnalysis, isLoading } = useQuery<VideoAnalysis>({
@@ -30,40 +31,46 @@ export default function Home() {
       });
       console.log("Got upload URL:", uploadURL);
 
-      // Upload video to object storage
+      // Upload video to object storage with progress tracking
       console.log("Uploading to object storage...");
       
-      // Create an AbortController with a longer timeout for large files
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout
-      
-      try {
-        const uploadResponse = await fetch(uploadURL, {
-          method: "PUT",
-          body: file,
-          headers: {
-            "Content-Type": file.type,
-          },
-          signal: controller.signal,
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        
+        // Track upload progress
+        xhr.upload.addEventListener('progress', (e) => {
+          if (e.lengthComputable) {
+            const percentComplete = Math.round((e.loaded / e.total) * 100);
+            setUploadProgress(percentComplete);
+            console.log(`Upload progress: ${percentComplete}%`);
+          }
         });
         
-        clearTimeout(timeoutId);
+        xhr.addEventListener('load', () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            console.log("Upload successful");
+            resolve();
+          } else {
+            console.error("Upload failed with status:", xhr.status);
+            reject(new Error(`Upload failed with status ${xhr.status}`));
+          }
+        });
         
-        console.log("Upload response status:", uploadResponse.status);
+        xhr.addEventListener('error', () => {
+          console.error("Upload error");
+          reject(new Error('Upload failed due to network error'));
+        });
         
-        if (!uploadResponse.ok) {
-          const errorText = await uploadResponse.text();
-          console.error("Upload error response:", errorText);
-          throw new Error(`Upload failed with status ${uploadResponse.status}: ${errorText}`);
-        }
-        console.log("Upload successful");
-      } catch (uploadError: any) {
-        clearTimeout(timeoutId);
-        if (uploadError.name === 'AbortError') {
-          throw new Error("Upload timed out. Please try with a smaller video file.");
-        }
-        throw uploadError;
-      }
+        xhr.addEventListener('timeout', () => {
+          console.error("Upload timeout");
+          reject(new Error('Upload timed out. Please try with a smaller video file.'));
+        });
+        
+        xhr.open('PUT', uploadURL);
+        xhr.setRequestHeader('Content-Type', file.type);
+        xhr.timeout = 300000; // 5 minute timeout
+        xhr.send(file);
+      });
 
       // Get video duration
       console.log("Getting video duration...");
@@ -100,6 +107,7 @@ export default function Home() {
       });
     } finally {
       setIsAnalyzing(false);
+      setUploadProgress(0);
     }
   };
 
@@ -119,7 +127,11 @@ export default function Home() {
                 Analyze Your Form
               </h2>
               <p className="text-muted-foreground text-lg">
-                {isAnalyzing ? "Analyzing your video..." : "Upload a video to get instant AI-powered pose analysis"}
+                {isAnalyzing 
+                  ? uploadProgress > 0 && uploadProgress < 100
+                    ? `Uploading... ${uploadProgress}%`
+                    : "Analyzing your video..."
+                  : "Upload a video to get instant AI-powered pose analysis"}
               </p>
             </div>
             <VideoUploadZone onVideoSelect={handleVideoSelect} />
