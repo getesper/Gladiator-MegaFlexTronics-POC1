@@ -2,14 +2,17 @@
 
 ## Recent Changes (October 25, 2025)
 
-**AI Analysis Integration - COMPLETE**
+**AI Analysis Integration - PRODUCTION READY**
 - Integrated 3 AI providers: OpenAI GPT-4o, Google Gemini 2.5, Anthropic Claude Sonnet 4
-- Users can select different models for vision analysis and coaching feedback
+- Users can select different models for vision analysis and coaching feedback independently
 - Vision analysis: Captures current video frame, analyzes muscle definition, vascularity, conditioning
 - Coaching analysis: Generates personalized recommendations from pose measurements
 - Privacy-first: Only frame snapshots + measurements sent to AI, never full video
 - OpenAI uses Replit AI credits (no API key needed), Gemini/Claude require user API keys
-- UI includes model selector, "Analyze with AI" button, loading states, results display
+- Robust frame capture timing: Explicit `isFrameReady` state prevents stale captures during video switching
+- Graceful degradation: If frame capture fails, vision skips with warning and coaching continues
+- Button gating: "Analyze with AI" disabled until video metadata loads, with "Loading video..." status
+- Complete end-to-end flow validated and architect-approved
 
 **Fully Responsive Dynamic Layout**
 - Fixed sidebar width: 384px (lg), 420px (xl), full-width on mobile
@@ -71,6 +74,8 @@ Preferred communication style: Simple, everyday language.
   - `POST /api/objects/upload` - Get presigned upload URL
   - `POST /api/analyses` - Create video analysis
   - `GET /api/analyses/:id` - Retrieve analysis results
+  - `POST /api/analyses/:id/vision` - AI vision analysis (frame + measurements)
+  - `POST /api/analyses/:id/coaching` - AI coaching feedback (measurements only)
   - `GET /objects/:objectPath` - Stream video files
 - JSON request/response format with Zod schema validation
 

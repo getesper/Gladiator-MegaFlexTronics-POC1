@@ -28,9 +28,10 @@ import { useToast } from "@/hooks/use-toast";
 interface AnalysisDashboardProps {
   analysis: VideoAnalysis;
   captureFrame?: (() => string | null) | null;
+  isFrameReady?: boolean;
 }
 
-export function AnalysisDashboard({ analysis, captureFrame }: AnalysisDashboardProps) {
+export function AnalysisDashboard({ analysis, captureFrame, isFrameReady = false }: AnalysisDashboardProps) {
   const [selectedCategory, setSelectedCategory] = useState(analysis.category);
   const [visionModel, setVisionModel] = useState("gpt-4o");
   const [coachingModel, setCoachingModel] = useState("claude-sonnet-4");
@@ -233,7 +234,7 @@ export function AnalysisDashboard({ analysis, captureFrame }: AnalysisDashboardP
                 disabled={
                   runAIAnalysisMutation.isPending || 
                   (visionModel === "none" && coachingModel === "none") ||
-                  (visionModel !== "none" && !captureFrame)
+                  (visionModel !== "none" && !isFrameReady)
                 }
                 className="w-full"
                 data-testid="button-ai-analysis"
@@ -241,12 +242,12 @@ export function AnalysisDashboard({ analysis, captureFrame }: AnalysisDashboardP
                 <Sparkles className="mr-2 h-4 w-4" />
                 {runAIAnalysisMutation.isPending 
                   ? "Analyzing..." 
-                  : !captureFrame && visionModel !== "none"
+                  : !isFrameReady && visionModel !== "none"
                   ? "Loading video..."
                   : "Analyze with AI"}
               </Button>
 
-              {!captureFrame && visionModel !== "none" && (
+              {!isFrameReady && visionModel !== "none" && (
                 <p className="text-xs text-muted-foreground text-center">
                   Waiting for video to load for frame capture...
                 </p>
