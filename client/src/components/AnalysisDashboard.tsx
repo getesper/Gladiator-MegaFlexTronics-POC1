@@ -32,8 +32,8 @@ export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
   };
 
   return (
-    <div className="h-full flex flex-col min-w-0">
-      <div className="px-4 lg:px-6 pt-4 pb-2 border-b">
+    <div className="h-full w-full flex flex-col overflow-hidden">
+      <div className="px-3 sm:px-4 pt-3 pb-2 border-b flex-shrink-0">
         <Button
           variant="outline"
           size="sm"
@@ -46,25 +46,25 @@ export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
         </Button>
       </div>
 
-      <Tabs defaultValue="overview" className="flex-1 flex flex-col min-w-0">
-        <div className="px-4 lg:px-6 pt-4 pb-2">
-          <TabsList className="grid w-full grid-cols-4 text-xs sm:text-sm" data-testid="tabs-analysis">
-            <TabsTrigger value="overview" className="px-2 sm:px-3">Overview</TabsTrigger>
-            <TabsTrigger value="detailed" className="px-2 sm:px-3">Detailed</TabsTrigger>
-            <TabsTrigger value="corrections" className="px-2 sm:px-3">Fixes</TabsTrigger>
-            <TabsTrigger value="progress" className="px-2 sm:px-3">Progress</TabsTrigger>
+      <Tabs defaultValue="overview" className="flex-1 flex flex-col overflow-hidden min-h-0">
+        <div className="px-3 sm:px-4 pt-3 pb-2 flex-shrink-0">
+          <TabsList className="grid w-full grid-cols-4 text-xs" data-testid="tabs-analysis">
+            <TabsTrigger value="overview" className="px-1 text-[10px] sm:text-xs">Overview</TabsTrigger>
+            <TabsTrigger value="detailed" className="px-1 text-[10px] sm:text-xs">Detailed</TabsTrigger>
+            <TabsTrigger value="corrections" className="px-1 text-[10px] sm:text-xs">Fixes</TabsTrigger>
+            <TabsTrigger value="progress" className="px-1 text-[10px] sm:text-xs">Progress</TabsTrigger>
           </TabsList>
         </div>
 
-        <ScrollArea className="flex-1">
-          <div className="p-4 lg:p-6 pt-4">
-            <TabsContent value="overview" className="mt-0 space-y-6">
+        <ScrollArea className="flex-1 min-h-0">
+          <div className="p-3 sm:p-4 pt-2 space-y-4 max-w-full">
+            <TabsContent value="overview" className="mt-0 space-y-4 max-w-full">
               <CategorySelector
                 selectedCategory={selectedCategory}
                 onCategoryChange={setSelectedCategory}
               />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <MetricCard
                   title="Poses Detected"
                   value={(analysis.detectedPoses as any[])?.length || Object.keys(analysis.poseScores as Record<string, number>).length}
@@ -79,9 +79,9 @@ export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
                 />
               </div>
 
-              {analysis.detectedPoses && (analysis.detectedPoses as any[]).length > 0 && (
+              {analysis.detectedPoses && (analysis.detectedPoses as any[]).length > 0 ? (
                 <DetectedPosesList poses={analysis.detectedPoses as any[]} />
-              )}
+              ) : null}
 
               <FormScoreCard 
                 score={analysis.overallScore}
@@ -96,8 +96,8 @@ export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
               <FrameTimeline />
             </TabsContent>
 
-            <TabsContent value="detailed" className="mt-0 space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <TabsContent value="detailed" className="mt-0 space-y-4 max-w-full">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <MetricCard
                   title="V-Taper Ratio"
                   value={(analysis.measurements as any).vTaperRatio}
@@ -139,14 +139,14 @@ export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
               </div>
             </TabsContent>
 
-            <TabsContent value="corrections" className="mt-0 space-y-6">
+            <TabsContent value="corrections" className="mt-0 space-y-4 max-w-full">
               <PoseCorrections />
               <ConditioningCard measurements={analysis.measurements as any} />
               <MuscleGroupCard muscleGroups={analysis.muscleGroups as Record<string, string>} />
               <SymmetryCard measurements={analysis.measurements as any} />
             </TabsContent>
 
-            <TabsContent value="progress" className="mt-0 space-y-6">
+            <TabsContent value="progress" className="mt-0 space-y-4 max-w-full">
               <ComparisonMode />
               <FormScoreCard 
                 score={analysis.overallScore}
