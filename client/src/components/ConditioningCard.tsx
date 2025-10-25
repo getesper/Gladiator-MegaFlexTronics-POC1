@@ -2,9 +2,16 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Droplet } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
-export function ConditioningCard() {
+interface ConditioningCardProps {
+  measurements?: {
+    bodyFatPercentage?: number;
+  };
+}
+
+export function ConditioningCard({ measurements }: ConditioningCardProps) {
+  const bodyFat = measurements?.bodyFatPercentage || 6.2;
   const metrics = [
-    { name: "Body Fat %", value: 6.2, target: 5, max: 10 },
+    { name: "Body Fat %", value: bodyFat, target: 5, max: 10 },
     { name: "Muscle Definition", value: 88, target: 90, max: 100 },
     { name: "Vascularity", value: 85, target: 80, max: 100 },
     { name: "Striations", value: 78, target: 85, max: 100 },

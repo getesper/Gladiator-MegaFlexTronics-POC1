@@ -2,15 +2,31 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dumbbell } from "lucide-react";
 
-export function MuscleGroupCard() {
-  const muscleGroups = [
-    { name: "Chest", level: "high", color: "bg-chart-4 text-white" },
-    { name: "Shoulders", level: "high", color: "bg-chart-4 text-white" },
-    { name: "Lats", level: "high", color: "bg-chart-4 text-white" },
-    { name: "Arms", level: "medium", color: "bg-chart-3 text-black" },
-    { name: "Quads", level: "medium", color: "bg-chart-3 text-black" },
-    { name: "Calves", level: "low", color: "bg-muted text-muted-foreground" },
-  ];
+interface MuscleGroupCardProps {
+  muscleGroups?: Record<string, string>;
+}
+
+export function MuscleGroupCard({ muscleGroups: muscleGroupsData }: MuscleGroupCardProps) {
+  const getColor = (level: string) => {
+    if (level === "high") return "bg-chart-4 text-white";
+    if (level === "medium") return "bg-chart-3 text-black";
+    return "bg-muted text-muted-foreground";
+  };
+
+  const muscleGroups = muscleGroupsData 
+    ? Object.entries(muscleGroupsData).map(([name, level]) => ({
+        name: name.charAt(0).toUpperCase() + name.slice(1),
+        level,
+        color: getColor(level),
+      }))
+    : [
+        { name: "Chest", level: "high", color: "bg-chart-4 text-white" },
+        { name: "Shoulders", level: "high", color: "bg-chart-4 text-white" },
+        { name: "Lats", level: "high", color: "bg-chart-4 text-white" },
+        { name: "Arms", level: "medium", color: "bg-chart-3 text-black" },
+        { name: "Quads", level: "medium", color: "bg-chart-3 text-black" },
+        { name: "Calves", level: "low", color: "bg-muted text-muted-foreground" },
+      ];
 
   return (
     <Card data-testid="card-muscle-groups">

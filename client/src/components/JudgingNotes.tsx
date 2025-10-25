@@ -1,8 +1,12 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ClipboardList, Check, X, AlertTriangle } from "lucide-react";
 
-export function JudgingNotes() {
-  const notes = [
+interface JudgingNotesProps {
+  notes?: Array<{ type: string; text: string }>;
+}
+
+export function JudgingNotes({ notes: notesData }: JudgingNotesProps) {
+  const notes = notesData || [
     { type: "strength", text: "V-taper meets IFBB ideal standards" },
     { type: "strength", text: "Excellent chest striations and separation" },
     { type: "strength", text: "Good vascularity throughout upper body" },

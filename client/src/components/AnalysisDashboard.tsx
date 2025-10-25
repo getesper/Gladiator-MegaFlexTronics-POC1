@@ -17,9 +17,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
+import type { VideoAnalysis } from "@shared/schema";
 
-export function AnalysisDashboard() {
-  const [selectedCategory, setSelectedCategory] = useState("bodybuilding");
+interface AnalysisDashboardProps {
+  analysis: VideoAnalysis;
+}
+
+export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
+  const [selectedCategory, setSelectedCategory] = useState(analysis.category);
 
   const handleExport = () => {
     console.log("Exporting analysis report...");
@@ -61,22 +66,28 @@ export function AnalysisDashboard() {
               <div className="grid grid-cols-2 gap-4">
                 <MetricCard
                   title="Poses Analyzed"
-                  value={4}
+                  value={Object.keys(analysis.poseScores as Record<string, number>).length}
                   icon={Target}
                   description="Mandatory poses"
                 />
                 <MetricCard
                   title="Video Duration"
-                  value="0:24"
+                  value={formatDuration(analysis.duration)}
                   icon={Clock}
                   description="Total length"
                 />
               </div>
 
-              <FormScoreCard score={86} />
-              <MuscleGroupCard />
-              <SymmetryCard />
-              <ConditioningCard />
+              <FormScoreCard 
+                score={analysis.overallScore}
+                muscularityScore={analysis.muscularityScore}
+                symmetryScore={analysis.symmetryScore}
+                conditioningScore={analysis.conditioningScore}
+                aestheticsScore={analysis.aestheticsScore}
+              />
+              <MuscleGroupCard muscleGroups={analysis.muscleGroups as Record<string, string>} />
+              <SymmetryCard measurements={analysis.measurements as any} />
+              <ConditioningCard measurements={analysis.measurements as any} />
               <FrameTimeline />
             </TabsContent>
 
@@ -84,40 +95,40 @@ export function AnalysisDashboard() {
               <div className="grid grid-cols-2 gap-4">
                 <MetricCard
                   title="V-Taper Ratio"
-                  value="1.42"
+                  value={(analysis.measurements as any).vTaperRatio}
                   icon={Ruler}
                   description="Shoulder to waist"
                 />
                 <MetricCard
                   title="Best Pose Score"
-                  value="92%"
+                  value={`${Math.max(...Object.values(analysis.poseScores as Record<string, number>))}%`}
                   icon={TrendingUp}
-                  description="Front double biceps"
+                  description="Top pose"
                 />
               </div>
 
-              <PosingCard />
-              <DetailedScoreBreakdown />
-              <JudgingNotes />
+              <PosingCard poseScores={analysis.poseScores as Record<string, number>} />
+              <DetailedScoreBreakdown analysis={analysis} />
+              <JudgingNotes notes={(analysis.judgeNotes as any[]) || []} />
 
               <div className="space-y-3">
                 <h3 className="font-heading font-semibold text-sm">Body Measurements</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between p-3 rounded-md bg-card border">
                     <span>Shoulder Width</span>
-                    <span className="font-semibold">48cm</span>
+                    <span className="font-semibold">{(analysis.measurements as any).shoulderWidth}cm</span>
                   </div>
                   <div className="flex justify-between p-3 rounded-md bg-card border">
                     <span>Waist Width</span>
-                    <span className="font-semibold">34cm</span>
+                    <span className="font-semibold">{(analysis.measurements as any).waistWidth}cm</span>
                   </div>
                   <div className="flex justify-between p-3 rounded-md bg-card border">
                     <span>V-Taper Ratio</span>
-                    <span className="font-semibold">1.42</span>
+                    <span className="font-semibold">{(analysis.measurements as any).vTaperRatio}</span>
                   </div>
                   <div className="flex justify-between p-3 rounded-md bg-card border">
                     <span>Upper/Lower Ratio</span>
-                    <span className="font-semibold">1.15</span>
+                    <span className="font-semibold">{(analysis.measurements as any).upperLowerRatio}</span>
                   </div>
                 </div>
               </div>
@@ -125,47 +136,51 @@ export function AnalysisDashboard() {
 
             <TabsContent value="corrections" className="mt-0 space-y-6">
               <PoseCorrections />
-              <ConditioningCard />
-              <MuscleGroupCard />
-              <SymmetryCard />
+              <ConditioningCard measurements={analysis.measurements as any} />
+              <MuscleGroupCard muscleGroups={analysis.muscleGroups as Record<string, string>} />
+              <SymmetryCard measurements={analysis.measurements as any} />
             </TabsContent>
 
             <TabsContent value="progress" className="mt-0 space-y-6">
               <ComparisonMode />
-              <FormScoreCard score={86} />
+              <FormScoreCard 
+                score={analysis.overallScore}
+                muscularityScore={analysis.muscularityScore}
+                symmetryScore={analysis.symmetryScore}
+                conditioningScore={analysis.conditioningScore}
+                aestheticsScore={analysis.aestheticsScore}
+              />
               <FrameTimeline />
             </TabsContent>
 
             <TabsContent value="recommendations" className="mt-0 space-y-4 hidden">
-              <RecommendationCard
-                icon={CheckCircle}
-                title="Excellent Muscularity"
-                description="Your chest and lats show exceptional development with clear separation. This aligns well with IFBB judging standards for mass and density."
-              />
-              <RecommendationCard
-                icon={AlertCircle}
-                title="Improve Calf Development"
-                description="Calf muscles appear underdeveloped compared to upper body. Focus on proportional growth to enhance overall symmetry scores."
-              />
-              <RecommendationCard
-                icon={TrendingUp}
-                title="Enhance Conditioning"
-                description="Reduce body fat by 1-2% to achieve better muscle striations and the 'dry' look judges favor in competition."
-              />
-              <RecommendationCard
-                icon={Target}
-                title="Refine Most Muscular Pose"
-                description="Your most muscular pose scored 78/100. Work on highlighting your strengths while maintaining smooth transitions between poses."
-              />
-              <RecommendationCard
-                icon={CheckCircle}
-                title="Strong V-Taper Aesthetics"
-                description="Your shoulder-to-waist ratio of 1.42 is excellent and meets the aesthetic ideal for bodybuilding competitions."
-              />
+              {(analysis.recommendations as any[]).map((rec: any, index: number) => {
+                const getIcon = () => {
+                  switch (rec.type) {
+                    case "strength": return CheckCircle;
+                    case "weakness": return AlertCircle;
+                    default: return TrendingUp;
+                  }
+                };
+                return (
+                  <RecommendationCard
+                    key={index}
+                    icon={getIcon()}
+                    title={rec.title}
+                    description={rec.description}
+                  />
+                );
+              })}
             </TabsContent>
           </div>
         </ScrollArea>
       </Tabs>
     </div>
   );
+}
+
+function formatDuration(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
 }

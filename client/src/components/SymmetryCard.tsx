@@ -2,9 +2,16 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Scale } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
-export function SymmetryCard() {
-  const leftSide = 52;
-  const rightSide = 48;
+interface SymmetryCardProps {
+  measurements?: {
+    leftRightSymmetry?: number;
+  };
+}
+
+export function SymmetryCard({ measurements }: SymmetryCardProps) {
+  const symmetryScore = measurements?.leftRightSymmetry || 96;
+  const leftSide = 50 + (symmetryScore / 200);
+  const rightSide = 100 - leftSide;
   const difference = Math.abs(leftSide - rightSide);
 
   return (

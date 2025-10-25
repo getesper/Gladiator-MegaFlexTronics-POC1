@@ -1,38 +1,32 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
+import { type VideoAnalysis, type InsertVideoAnalysis, videoAnalyses } from "@shared/schema";
+import { db } from "../db/index";
+import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  createVideoAnalysis(analysis: InsertVideoAnalysis): Promise<VideoAnalysis>;
+  getVideoAnalysis(id: string): Promise<VideoAnalysis | undefined>;
+  getAllVideoAnalyses(): Promise<VideoAnalysis[]>;
+  deleteVideoAnalysis(id: string): Promise<void>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-
-  constructor() {
-    this.users = new Map();
+export class DatabaseStorage implements IStorage {
+  async createVideoAnalysis(analysis: InsertVideoAnalysis): Promise<VideoAnalysis> {
+    const [result] = await db.insert(videoAnalyses).values(analysis).returning();
+    return result;
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  async getVideoAnalysis(id: string): Promise<VideoAnalysis | undefined> {
+    const [result] = await db.select().from(videoAnalyses).where(eq(videoAnalyses.id, id));
+    return result;
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+  async getAllVideoAnalyses(): Promise<VideoAnalysis[]> {
+    return db.select().from(videoAnalyses).orderBy(desc(videoAnalyses.createdAt));
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async deleteVideoAnalysis(id: string): Promise<void> {
+    await db.delete(videoAnalyses).where(eq(videoAnalyses.id, id));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

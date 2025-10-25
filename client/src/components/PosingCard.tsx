@@ -2,13 +2,36 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-export function PosingCard() {
-  const poses = [
-    { name: "Front Double Biceps", score: 92, status: "excellent" },
-    { name: "Side Chest", score: 85, status: "good" },
-    { name: "Back Double Biceps", score: 88, status: "good" },
-    { name: "Most Muscular", score: 78, status: "fair" },
-  ];
+interface PosingCardProps {
+  poseScores?: Record<string, number>;
+}
+
+export function PosingCard({ poseScores }: PosingCardProps) {
+  const getStatus = (score: number) => {
+    if (score >= 90) return "excellent";
+    if (score >= 80) return "good";
+    return "fair";
+  };
+
+  const formatPoseName = (key: string) => {
+    return key
+      .split(/(?=[A-Z])/)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
+  const poses = poseScores
+    ? Object.entries(poseScores).map(([name, score]) => ({
+        name: formatPoseName(name),
+        score,
+        status: getStatus(score),
+      }))
+    : [
+        { name: "Front Double Biceps", score: 92, status: "excellent" },
+        { name: "Side Chest", score: 85, status: "good" },
+        { name: "Back Double Biceps", score: 88, status: "good" },
+        { name: "Most Muscular", score: 78, status: "fair" },
+      ];
 
   const getStatusColor = (status: string) => {
     switch (status) {

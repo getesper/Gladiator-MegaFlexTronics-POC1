@@ -1,8 +1,13 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { BarChart3 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import type { VideoAnalysis } from "@shared/schema";
 
-export function DetailedScoreBreakdown() {
+interface DetailedScoreBreakdownProps {
+  analysis?: VideoAnalysis;
+}
+
+export function DetailedScoreBreakdown({ analysis }: DetailedScoreBreakdownProps) {
   const criteria = [
     {
       category: "Muscularity",

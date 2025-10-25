@@ -4,9 +4,19 @@ import { Trophy } from "lucide-react";
 
 interface FormScoreCardProps {
   score: number;
+  muscularityScore?: number;
+  symmetryScore?: number;
+  conditioningScore?: number;
+  aestheticsScore?: number;
 }
 
-export function FormScoreCard({ score }: FormScoreCardProps) {
+export function FormScoreCard({ 
+  score,
+  muscularityScore = 85,
+  symmetryScore = 78,
+  conditioningScore = 92,
+  aestheticsScore = 88
+}: FormScoreCardProps) {
   const getScoreColor = (score: number) => {
     if (score >= 80) return "text-chart-4";
     if (score >= 60) return "text-chart-3";
@@ -20,10 +30,10 @@ export function FormScoreCard({ score }: FormScoreCardProps) {
   };
 
   const subScores = [
-    { name: "Muscularity", value: 85 },
-    { name: "Symmetry", value: 78 },
-    { name: "Conditioning", value: 92 },
-    { name: "Aesthetics", value: 88 },
+    { name: "Muscularity", value: muscularityScore },
+    { name: "Symmetry", value: symmetryScore },
+    { name: "Conditioning", value: conditioningScore },
+    { name: "Aesthetics", value: aestheticsScore },
   ];
 
   return (
