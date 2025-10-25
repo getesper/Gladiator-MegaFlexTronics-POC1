@@ -16,7 +16,7 @@ export function Header({ onNewAnalysis }: HeaderProps) {
               <Dumbbell className="h-5 w-5 text-primary-foreground" />
             </div>
             <h1 className="font-heading text-xl font-bold" data-testid="text-app-title">
-              PoseAnalyzer
+              GLADIATOR MEGAFLEXTRONICS
             </h1>
           </div>
         </div>
