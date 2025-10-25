@@ -245,20 +245,26 @@ export class VideoPoseAnalyzer {
 
   private detectBodybuildingPoses(poseResults: Array<{ timestamp: number; landmarks: any }>): DetectedPose[] {
     const detectedPoses: DetectedPose[] = [];
-    const seenPoses = new Set<string>();
+    let lastPoseName: string | null = null;
+    let lastTimestamp = -999;
 
     for (const frame of poseResults) {
       const poseName = this.identifyPose(frame.landmarks);
       
-      // Only add if we haven't seen this pose yet
-      if (poseName && !seenPoses.has(poseName)) {
-        seenPoses.add(poseName);
+      // Add pose if it's different from the last one OR if enough time has passed (new instance of same pose)
+      const timeDiff = frame.timestamp - lastTimestamp;
+      const isDifferentPose = poseName !== lastPoseName;
+      const isNewInstance = timeDiff > 2.0; // New instance if >2 seconds apart
+      
+      if (poseName && (isDifferentPose || isNewInstance)) {
         detectedPoses.push({
           poseName,
           timestamp: Math.round(frame.timestamp),
           score: this.scorePose(frame.landmarks, poseName),
           frameSnapshot: null,
         });
+        lastPoseName = poseName;
+        lastTimestamp = frame.timestamp;
       }
     }
 
@@ -266,30 +272,71 @@ export class VideoPoseAnalyzer {
   }
 
   private identifyPose(landmarks: any): string | null {
-    // Detect specific bodybuilding poses based on joint angles and positions
-    const leftElbow = landmarks[13];
-    const rightElbow = landmarks[15];
+    // MediaPipe landmarks: 11=L shoulder, 12=R shoulder, 13=L elbow, 14=R elbow, 15=L wrist, 16=R wrist
+    // 23=L hip, 24=R hip, 25=L knee, 26=R knee
     const leftShoulder = landmarks[11];
     const rightShoulder = landmarks[12];
+    const leftElbow = landmarks[13];
+    const rightElbow = landmarks[14];
     const leftWrist = landmarks[15];
     const rightWrist = landmarks[16];
+    const leftHip = landmarks[23];
+    const rightHip = landmarks[24];
     
-    // Arms raised and bent = front double biceps or similar
+    // Calculate key measurements
+    const armSpread = this.calculateDistance(leftWrist, rightWrist);
+    const shoulderSpread = this.calculateDistance(leftShoulder, rightShoulder);
+    const leftArmAngle = Math.atan2(leftWrist.y - leftShoulder.y, leftWrist.x - leftShoulder.x);
+    const rightArmAngle = Math.atan2(rightWrist.y - rightShoulder.y, rightWrist.x - rightShoulder.x);
+    
+    // Front Double Biceps: Both arms raised and bent, wrists above shoulders
     if (leftWrist.y < leftShoulder.y && rightWrist.y < rightShoulder.y) {
-      if (leftElbow.y < leftShoulder.y && rightElbow.y < rightShoulder.y) {
+      const leftArmBent = leftWrist.x > leftElbow.x - 0.05 && leftWrist.x < leftElbow.x + 0.05;
+      const rightArmBent = rightWrist.x > rightElbow.x - 0.05 && rightWrist.x < rightElbow.x + 0.05;
+      if (leftElbow.y < leftShoulder.y || rightElbow.y < rightShoulder.y) {
         return "frontDoubleBiceps";
       }
     }
     
-    // Arms extended to sides = lat spread
-    const armSpread = this.calculateDistance(leftWrist, rightWrist);
-    const shoulderSpread = this.calculateDistance(leftShoulder, rightShoulder);
-    if (armSpread > shoulderSpread * 1.5) {
-      return "frontLatSpread";
+    // Front Lat Spread: Arms extended wide to sides
+    if (armSpread > shoulderSpread * 1.8) {
+      const handsNearHips = Math.abs(leftWrist.y - leftHip.y) < 0.2 && Math.abs(rightWrist.y - rightHip.y) < 0.2;
+      if (handsNearHips) {
+        return "frontLatSpread";
+      }
     }
     
-    // Default to generic pose
-    return "sideChest";
+    // Side Chest: Arms positioned asymmetrically or one arm raised
+    const armAsymmetry = Math.abs(leftArmAngle - rightArmAngle);
+    if (armAsymmetry > 0.5) {
+      return "sideChest";
+    }
+    
+    // Back Double Biceps: Similar to front but body may be turned
+    if (leftWrist.y < leftShoulder.y && rightWrist.y < rightShoulder.y && armSpread < shoulderSpread * 1.3) {
+      return "backDoubleBiceps";
+    }
+    
+    // Most Muscular: Hands together in front, shoulders hunched
+    const handsClose = this.calculateDistance(leftWrist, rightWrist) < shoulderSpread * 0.5;
+    const handsLow = leftWrist.y > leftShoulder.y && rightWrist.y > rightShoulder.y;
+    if (handsClose && handsLow) {
+      return "mostMuscular";
+    }
+    
+    // Abdominal/Front Relaxed: Arms down at sides
+    const armsDown = leftWrist.y > leftHip.y && rightWrist.y > rightHip.y;
+    if (armsDown && armSpread < shoulderSpread * 1.3) {
+      return "frontRelaxed";
+    }
+    
+    // Side Triceps: One arm extended across body
+    if (armAsymmetry > 0.8) {
+      return "sideTriceps";
+    }
+    
+    // Default: classify as relaxed pose
+    return "relaxedPose";
   }
 
   private scorePose(landmarks: any, poseName: string): number {
