@@ -1,8 +1,10 @@
-import { Clock, Target, Activity, TrendingUp, AlertCircle, CheckCircle } from "lucide-react";
+import { Clock, Target, Activity, TrendingUp, AlertCircle, CheckCircle, Ruler } from "lucide-react";
 import { MetricCard } from "./MetricCard";
 import { FormScoreCard } from "./FormScoreCard";
 import { SymmetryCard } from "./SymmetryCard";
 import { MuscleGroupCard } from "./MuscleGroupCard";
+import { ConditioningCard } from "./ConditioningCard";
+import { PosingCard } from "./PosingCard";
 import { FrameTimeline } from "./FrameTimeline";
 import { RecommendationCard } from "./RecommendationCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,63 +27,65 @@ export function AnalysisDashboard() {
             <TabsContent value="overview" className="mt-0 space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <MetricCard
-                  title="Poses Detected"
-                  value={12}
+                  title="Poses Analyzed"
+                  value={4}
                   icon={Target}
-                  description="Total unique poses"
+                  description="Mandatory poses"
                 />
                 <MetricCard
                   title="Video Duration"
                   value="0:24"
                   icon={Clock}
-                  description="Analyzed length"
+                  description="Total length"
                 />
               </div>
 
               <FormScoreCard score={86} />
-              <SymmetryCard />
               <MuscleGroupCard />
+              <SymmetryCard />
+              <ConditioningCard />
               <FrameTimeline />
             </TabsContent>
 
             <TabsContent value="detailed" className="mt-0 space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <MetricCard
-                  title="Avg Joint Angle"
-                  value="142°"
-                  icon={Activity}
-                  description="Elbow flexion"
+                  title="V-Taper Ratio"
+                  value="1.42"
+                  icon={Ruler}
+                  description="Shoulder to waist"
                 />
                 <MetricCard
-                  title="Peak Performance"
-                  value="94%"
+                  title="Best Pose Score"
+                  value="92%"
                   icon={TrendingUp}
-                  description="Best frame score"
+                  description="Front double biceps"
                 />
               </div>
 
-              <FormScoreCard score={86} />
-              <SymmetryCard />
+              <PosingCard />
+              <ConditioningCard />
               <MuscleGroupCard />
+              <SymmetryCard />
 
               <div className="space-y-3">
-                <h3 className="font-heading font-semibold text-sm">Joint Angles</h3>
+                <h3 className="font-heading font-semibold text-sm">Proportions</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between p-3 rounded-md bg-card border">
-                    <span>Left Elbow</span>
-                    <span className="font-semibold">138°</span>
+                    <span>Shoulder Width</span>
+                    <span className="font-semibold">48cm</span>
                   </div>
                   <div className="flex justify-between p-3 rounded-md bg-card border">
-                    <span>Right Elbow</span>
-                    <span className="font-semibold">146°</span>
+                    <span>Waist Width</span>
+                    <span className="font-semibold">34cm</span>
                   </div>
                   <div className="flex justify-between p-3 rounded-md bg-card border">
-                    <span>Left Shoulder</span>
-                    <span className="font-semibold">92°</span>
+                    <span>Upper/Lower Body Ratio</span>
+                    <span className="font-semibold">1.15</span>
                   </div>
                   <div className="flex justify-between p-3 rounded-md bg-card border">
-                    <span>Right Shoulder</span>
-                    <span className="font-semibold">88°</span>
+                    <span>Left/Right Symmetry</span>
+                    <span className="font-semibold">96%</span>
                   </div>
                 </div>
               </div>
@@ -90,23 +94,28 @@ export function AnalysisDashboard() {
             <TabsContent value="recommendations" className="mt-0 space-y-4">
               <RecommendationCard
                 icon={CheckCircle}
-                title="Strong Core Stability"
-                description="Your core engagement is excellent throughout the pose. Maintain this level of tension for consistent results."
+                title="Excellent Muscularity"
+                description="Your chest and lats show exceptional development with clear separation. This aligns well with IFBB judging standards for mass and density."
               />
               <RecommendationCard
                 icon={AlertCircle}
-                title="Balance Right Shoulder"
-                description="Your right shoulder is slightly lower than the left. Focus on symmetrical positioning to improve overall balance."
+                title="Improve Calf Development"
+                description="Calf muscles appear underdeveloped compared to upper body. Focus on proportional growth to enhance overall symmetry scores."
               />
               <RecommendationCard
                 icon={TrendingUp}
-                title="Improve Leg Definition"
-                description="Consider adding more quad flexion in your poses. This will enhance muscle definition and create better visual impact."
+                title="Enhance Conditioning"
+                description="Reduce body fat by 1-2% to achieve better muscle striations and the 'dry' look judges favor in competition."
               />
               <RecommendationCard
                 icon={Target}
-                title="Posture Alignment"
-                description="Your posture is generally good, but maintaining a straighter back will improve your form score by 5-8 points."
+                title="Refine Most Muscular Pose"
+                description="Your most muscular pose scored 78/100. Work on highlighting your strengths while maintaining smooth transitions between poses."
+              />
+              <RecommendationCard
+                icon={CheckCircle}
+                title="Strong V-Taper Aesthetics"
+                description="Your shoulder-to-waist ratio of 1.42 is excellent and meets the aesthetic ideal for bodybuilding competitions."
               />
             </TabsContent>
           </div>

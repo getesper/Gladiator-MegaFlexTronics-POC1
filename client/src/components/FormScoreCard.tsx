@@ -20,17 +20,17 @@ export function FormScoreCard({ score }: FormScoreCardProps) {
   };
 
   const subScores = [
-    { name: "Posture", value: 85 },
+    { name: "Muscularity", value: 85 },
     { name: "Symmetry", value: 78 },
-    { name: "Balance", value: 92 },
-    { name: "Muscle Definition", value: 88 },
+    { name: "Conditioning", value: 92 },
+    { name: "Aesthetics", value: 88 },
   ];
 
   return (
     <Card data-testid="card-form-score">
       <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
         <h3 className="text-sm font-heading font-semibold text-muted-foreground">
-          Form Score
+          Overall Score
         </h3>
         <div className="rounded-md bg-primary/10 p-2">
           <Trophy className="h-4 w-4 text-primary" />
