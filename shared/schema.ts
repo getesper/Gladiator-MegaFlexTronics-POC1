@@ -21,6 +21,9 @@ export const videoAnalyses = pgTable("video_analyses", {
   muscleGroups: jsonb("muscle_groups").notNull(),
   recommendations: jsonb("recommendations").notNull(),
   judgeNotes: jsonb("judge_notes").notNull(),
+  // Enhanced AI analysis fields (100% local processing)
+  vlmAnalysis: jsonb("vlm_analysis").default(sql`'{}'::jsonb`), // Vision model insights: muscle definition, vascularity, conditioning
+  coachingFeedback: text("coaching_feedback").default(''), // LLM-generated personalized coaching
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

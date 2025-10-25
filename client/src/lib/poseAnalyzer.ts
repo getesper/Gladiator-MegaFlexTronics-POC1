@@ -83,7 +83,9 @@ export class VideoPoseAnalyzer {
     });
 
     const duration = this.videoElement.duration;
-    const frameInterval = 0.5; // Analyze every 0.5 seconds
+    // SPEED OPTIMIZATION: Analyze every 1 second instead of 0.5s for 2x speed boost
+    // This is smart sampling - captures pose changes without analyzing redundant frames
+    const frameInterval = 1.0; // Analyze every 1 second
     const timestamps: number[] = [];
     
     for (let t = 0; t < duration; t += frameInterval) {
