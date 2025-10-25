@@ -32,18 +32,38 @@ export default function Home() {
 
       // Upload video to object storage
       console.log("Uploading to object storage...");
-      const uploadResponse = await fetch(uploadURL, {
-        method: "PUT",
-        body: file,
-        headers: {
-          "Content-Type": file.type,
-        },
-      });
       
-      if (!uploadResponse.ok) {
-        throw new Error(`Upload failed with status ${uploadResponse.status}`);
+      // Create an AbortController with a longer timeout for large files
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout
+      
+      try {
+        const uploadResponse = await fetch(uploadURL, {
+          method: "PUT",
+          body: file,
+          headers: {
+            "Content-Type": file.type,
+          },
+          signal: controller.signal,
+        });
+        
+        clearTimeout(timeoutId);
+        
+        console.log("Upload response status:", uploadResponse.status);
+        
+        if (!uploadResponse.ok) {
+          const errorText = await uploadResponse.text();
+          console.error("Upload error response:", errorText);
+          throw new Error(`Upload failed with status ${uploadResponse.status}: ${errorText}`);
+        }
+        console.log("Upload successful");
+      } catch (uploadError: any) {
+        clearTimeout(timeoutId);
+        if (uploadError.name === 'AbortError') {
+          throw new Error("Upload timed out. Please try with a smaller video file.");
+        }
+        throw uploadError;
       }
-      console.log("Upload successful");
 
       // Get video duration
       console.log("Getting video duration...");
