@@ -1,15 +1,11 @@
 // Pose analysis engine - calculates judging criteria from video
 import type { InsertVideoAnalysis } from "@shared/schema";
 
-interface PoseKeypoint {
-  x: number;
-  y: number;
-  confidence: number;
-}
-
-interface PoseData {
-  keypoints: PoseKeypoint[];
+interface PoseDetection {
+  poseName: string;
+  timestamp: number;
   score: number;
+  frameSnapshot: string | null;
 }
 
 // Mock pose analysis for now - in production would use TensorFlow.js/MediaPipe
@@ -19,14 +15,10 @@ export async function analyzeVideo(
   duration: number,
   category: string = "bodybuilding"
 ): Promise<InsertVideoAnalysis> {
-  // In a real implementation, this would:
-  // 1. Extract video frames
-  // 2. Run pose detection on each frame
-  // 3. Calculate keypoint positions
-  // 4. Analyze body measurements and proportions
-  // 5. Score each of the 5 judging criteria
-
-  // For MVP, return realistic mock data based on category
+  // Simulate pose detection across the video duration
+  // In real implementation, would process actual video frames
+  const detectedPoses = detectPosesFromVideo(duration, category);
+  
   const muscularityScore = randomScore(category === "bikini" ? 70 : 85);
   const symmetryScore = randomScore(78);
   const conditioningScore = randomScore(92);
@@ -36,6 +28,12 @@ export async function analyzeVideo(
   const overallScore = Math.round(
     (muscularityScore + symmetryScore + conditioningScore + posingScore + aestheticsScore) / 5
   );
+
+  // Build poseScores from detected poses
+  const poseScores: Record<string, number> = {};
+  detectedPoses.forEach(pose => {
+    poseScores[pose.poseName] = pose.score;
+  });
 
   return {
     videoUrl,
@@ -56,12 +54,13 @@ export async function analyzeVideo(
       leftRightSymmetry: 96,
       bodyFatPercentage: 6.2,
     },
-    poseScores: {
-      frontDoubleBiceps: 92,
-      sideChest: 85,
-      backDoubleBiceps: 88,
-      mostMuscular: 78,
-    },
+    poseScores,
+    detectedPoses: detectedPoses.map(p => ({
+      poseName: p.poseName,
+      timestamp: p.timestamp,
+      score: p.score,
+      frameSnapshot: p.frameSnapshot,
+    })),
     muscleGroups: {
       chest: "high",
       shoulders: "high",
@@ -96,8 +95,45 @@ export async function analyzeVideo(
   };
 }
 
+function detectPosesFromVideo(duration: number, category: string): PoseDetection[] {
+  // Simulate detecting different poses throughout the video
+  // In real implementation, would use ML model to detect actual poses in frames
+  
+  const allPoses = [
+    "frontDoubleBiceps",
+    "sideChest",
+    "backDoubleBiceps",
+    "mostMuscular",
+    "frontLatSpread",
+    "sideTriceps",
+    "backLatSpread",
+    "abdominalAndThigh",
+  ];
+
+  // Randomly detect 4-8 poses based on video duration
+  const numPoses = Math.min(Math.max(4, Math.floor(duration / 3)), 8);
+  const detectedPoses: PoseDetection[] = [];
+  
+  // Shuffle and take first numPoses
+  const selectedPoses = [...allPoses].sort(() => Math.random() - 0.5).slice(0, numPoses);
+  
+  selectedPoses.forEach((poseName, index) => {
+    // Distribute poses evenly across video duration
+    const timestamp = (duration / numPoses) * (index + 0.5);
+    const score = randomScore(80);
+    
+    detectedPoses.push({
+      poseName,
+      timestamp: Math.floor(timestamp),
+      score,
+      frameSnapshot: null, // In real implementation, would be actual frame image URL
+    });
+  });
+
+  return detectedPoses.sort((a, b) => a.timestamp - b.timestamp);
+}
+
 function randomScore(base: number): number {
-  // Add some randomness around the base score
   const variation = Math.floor(Math.random() * 10) - 5;
   return Math.max(60, Math.min(100, base + variation));
 }

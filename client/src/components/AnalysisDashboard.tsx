@@ -13,6 +13,7 @@ import { PoseCorrections } from "./PoseCorrections";
 import { JudgingNotes } from "./JudgingNotes";
 import { FrameTimeline } from "./FrameTimeline";
 import { RecommendationCard } from "./RecommendationCard";
+import { DetectedPosesList } from "./DetectedPosesList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -65,10 +66,10 @@ export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
 
               <div className="grid grid-cols-2 gap-4">
                 <MetricCard
-                  title="Poses Analyzed"
-                  value={Object.keys(analysis.poseScores as Record<string, number>).length}
+                  title="Poses Detected"
+                  value={(analysis.detectedPoses as any[])?.length || Object.keys(analysis.poseScores as Record<string, number>).length}
                   icon={Target}
-                  description="Mandatory poses"
+                  description="Unique poses found"
                 />
                 <MetricCard
                   title="Video Duration"
@@ -77,6 +78,10 @@ export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
                   description="Total length"
                 />
               </div>
+
+              {analysis.detectedPoses && (analysis.detectedPoses as any[]).length > 0 && (
+                <DetectedPosesList poses={analysis.detectedPoses as any[]} />
+              )}
 
               <FormScoreCard 
                 score={analysis.overallScore}

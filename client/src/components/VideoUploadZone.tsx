@@ -23,18 +23,34 @@ export function VideoUploadZone({ onVideoSelect }: VideoUploadZoneProps) {
     setIsDragging(false);
   };
 
+  const validateFile = (file: File): boolean => {
+    if (!file.type.startsWith("video/")) {
+      alert("Please upload a video file");
+      return false;
+    }
+    
+    // 500MB limit
+    const maxSize = 500 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert(`Video file is too large (${Math.round(file.size / 1024 / 1024)}MB). Maximum size is 500MB.`);
+      return false;
+    }
+    
+    return true;
+  };
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith("video/")) {
+    if (file && validateFile(file)) {
       simulateUpload(file);
     }
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (file && validateFile(file)) {
       simulateUpload(file);
     }
   };
@@ -93,7 +109,7 @@ export function VideoUploadZone({ onVideoSelect }: VideoUploadZoneProps) {
                 Drag and drop your video here or click to browse
               </p>
               <p className="text-xs text-muted-foreground">
-                Supported formats: MP4, MOV, AVI (max 100MB)
+                Supported formats: MP4, MOV, AVI (max 500MB)
               </p>
             </div>
             

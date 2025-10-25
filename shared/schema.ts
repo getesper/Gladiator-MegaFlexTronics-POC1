@@ -17,6 +17,7 @@ export const videoAnalyses = pgTable("video_analyses", {
   aestheticsScore: integer("aesthetics_score").notNull(),
   measurements: jsonb("measurements").notNull(),
   poseScores: jsonb("pose_scores").notNull(),
+  detectedPoses: jsonb("detected_poses").notNull().default(sql`'[]'::jsonb`),
   muscleGroups: jsonb("muscle_groups").notNull(),
   recommendations: jsonb("recommendations").notNull(),
   judgeNotes: jsonb("judge_notes").notNull(),
