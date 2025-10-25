@@ -1,8 +1,29 @@
-# PoseAnalyzer - Bodybuilding Form Analysis Application
+# GLADIATOR MEGAFLEXTRONICS - Bodybuilding Form Analysis Application
+
+## Recent Changes (October 25, 2025)
+
+**Fully Responsive Dynamic Layout**
+- Fluid flexbox layout adapts to any screen size in real-time
+- Sidebar uses `clamp(320px, 35vw, 480px)` for dynamic scaling (320-480px range)
+- Dynamic viewport height (`h-dvh`) for mobile browser compatibility
+- Responsive header: full buttons on desktop, icon-only on mobile
+- All padding and text scales with breakpoints (sm, md, lg)
+- Zero horizontal overflow guaranteed at any viewport size
+
+**Performance Optimizations**
+- Smart frame sampling: 2x faster analysis (every 1s instead of 0.5s)
+- Optimized for powerful local machines (M4 Mac, etc.)
+- All video processing happens locally in browser via MediaPipe
+
+**Enhanced AI Analysis (Schema Ready)**
+- Database supports VLM vision analysis (muscle definition, vascularity, conditioning)
+- Database supports LLM coaching feedback (personalized recommendations)
+- Privacy-first architecture: Only measurements sent to AI, never raw video
+- Using Transformers.js (@xenova/transformers) for local-first processing
 
 ## Overview
 
-PoseAnalyzer is an AI-powered bodybuilding pose analysis platform that evaluates competitor form through video uploads. The application analyzes bodybuilding poses against professional judging criteria (muscularity, symmetry, conditioning, posing, aesthetics) and provides detailed scoring, recommendations, and frame-by-frame analysis. Built as a full-stack web application with a focus on sports analysis and fitness tracking interfaces.
+GLADIATOR MEGAFLEXTRONICS is an AI-powered bodybuilding pose analysis platform that evaluates competitor form through video uploads. The application analyzes bodybuilding poses against professional judging criteria (muscularity, symmetry, conditioning, posing, aesthetics) and provides detailed scoring, recommendations, and frame-by-frame analysis. Built as a full-stack web application with a focus on sports analysis and fitness tracking interfaces.
 
 ## User Preferences
 

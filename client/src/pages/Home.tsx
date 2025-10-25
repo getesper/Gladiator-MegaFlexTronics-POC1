@@ -137,17 +137,17 @@ export default function Home() {
   };
 
   return (
-    <div className="h-screen w-screen max-w-full overflow-x-hidden flex flex-col bg-background">
+    <div className="h-dvh w-full flex flex-col bg-background overflow-hidden">
       <Header onNewAnalysis={currentAnalysis ? handleNewAnalysis : undefined} />
       
       {!currentAnalysis ? (
-        <div className="flex-1 flex items-center justify-center p-6">
+        <div className="flex-1 flex items-center justify-center p-4 sm:p-6 overflow-auto">
           <div className="w-full max-w-2xl">
-            <div className="text-center mb-8 space-y-2">
-              <h2 className="font-heading text-4xl font-bold" data-testid="text-welcome-title">
+            <div className="text-center mb-6 sm:mb-8 space-y-2">
+              <h2 className="font-heading text-3xl sm:text-4xl font-bold" data-testid="text-welcome-title">
                 Analyze Your Form
               </h2>
-              <p className="text-muted-foreground text-lg">
+              <p className="text-muted-foreground text-base sm:text-lg">
                 {isAnalyzing 
                   ? uploadProgress > 0 && uploadProgress < 100
                     ? `Uploading... ${uploadProgress}%`
@@ -159,12 +159,12 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px] gap-0 overflow-hidden w-full max-w-full">
-          <div className="flex flex-col p-4 lg:p-6 overflow-y-auto w-full max-w-full min-w-0">
+        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+          <div className="flex-1 flex flex-col p-3 sm:p-4 lg:p-6 overflow-y-auto min-w-0">
             <VideoPlayer videoUrl={currentAnalysis.videoUrl} />
           </div>
           
-          <div className="border-t lg:border-t-0 lg:border-l bg-card/50 overflow-y-auto w-full max-w-full min-w-0">
+          <div className="w-full lg:w-[clamp(320px,35vw,480px)] border-t lg:border-t-0 lg:border-l bg-card/50 overflow-y-auto flex-shrink-0">
             <AnalysisDashboard analysis={currentAnalysis} />
           </div>
         </div>
