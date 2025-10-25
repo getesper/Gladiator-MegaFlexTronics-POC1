@@ -5,6 +5,7 @@ import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { analyzeVideo } from "./poseAnalysis";
 import { insertVideoAnalysisSchema } from "@shared/schema";
 import { z } from "zod";
+import { analyzeVision, generateCoaching } from "./ai/aiService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const objectStorageService = new ObjectStorageService();
@@ -157,6 +158,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting analysis:", error);
       res.status(500).json({ error: "Failed to delete analysis" });
+    }
+  });
+
+  // AI Vision Analysis (analyzes key frames for muscle definition)
+  app.post("/api/analyses/:id/vision", async (req, res) => {
+    try {
+      console.log(`POST /api/analyses/${req.params.id}/vision - Running vision analysis`);
+      
+      const bodySchema = z.object({
+        model: z.string(),
+        frameBase64: z.string(),
+      });
+
+      const { model, frameBase64 } = bodySchema.parse(req.body);
+      
+      // Get the analysis to extract measurements and poses
+      const analysis = await storage.getVideoAnalysis(req.params.id);
+      if (!analysis) {
+        return res.status(404).json({ error: "Analysis not found" });
+      }
+
+      // Run vision analysis
+      const visionResult = await analyzeVision(model, {
+        frameBase64,
+        measurements: analysis.measurements as any || {},
+        detectedPoses: (analysis.detectedPoses as any[])?.map(p => p.poseName) || [],
+      });
+
+      // Update analysis with vision results
+      await storage.updateVideoAnalysis(req.params.id, {
+        muscleDefinition: visionResult.muscleDefinition,
+        conditioningDetails: JSON.stringify({
+          vascularity: visionResult.vascularity,
+          conditioningNotes: visionResult.conditioningNotes,
+          overallImpression: visionResult.overallImpression,
+        }),
+      });
+
+      res.json(visionResult);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      console.error("Error in vision analysis:", error);
+      res.status(500).json({ error: "Failed to run vision analysis" });
+    }
+  });
+
+  // AI Coaching Feedback (generates recommendations from measurements)
+  app.post("/api/analyses/:id/coaching", async (req, res) => {
+    try {
+      console.log(`POST /api/analyses/${req.params.id}/coaching - Generating coaching feedback`);
+      
+      const bodySchema = z.object({
+        model: z.string(),
+      });
+
+      const { model } = bodySchema.parse(req.body);
+      
+      // Get the analysis
+      const analysis = await storage.getVideoAnalysis(req.params.id);
+      if (!analysis) {
+        return res.status(404).json({ error: "Analysis not found" });
+      }
+
+      // Generate coaching feedback
+      const coachingResult = await generateCoaching(model, {
+        overallScore: analysis.overallScore,
+        muscularityScore: analysis.muscularityScore,
+        symmetryScore: analysis.symmetryScore,
+        conditioningScore: analysis.conditioningScore,
+        posingScore: analysis.posingScore,
+        aestheticsScore: analysis.aestheticsScore,
+        measurements: analysis.measurements,
+        detectedPoses: (analysis.detectedPoses as any[])?.map(p => p.poseName) || [],
+      });
+
+      // Update analysis with coaching results
+      await storage.updateVideoAnalysis(req.params.id, {
+        coachingFeedback: JSON.stringify(coachingResult),
+      });
+
+      res.json(coachingResult);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      console.error("Error generating coaching:", error);
+      res.status(500).json({ error: "Failed to generate coaching feedback" });
     }
   });
 
