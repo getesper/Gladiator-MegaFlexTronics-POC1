@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Clock, Target, TrendingUp, AlertCircle, CheckCircle, Ruler } from "lucide-react";
+import { Clock, Target, TrendingUp, AlertCircle, CheckCircle, Ruler, Sparkles } from "lucide-react";
 import { MetricCard } from "./MetricCard";
 import { FormScoreCard } from "./FormScoreCard";
 import { SymmetryCard } from "./SymmetryCard";
@@ -14,11 +14,16 @@ import { JudgingNotes } from "./JudgingNotes";
 import { FrameTimeline } from "./FrameTimeline";
 import { RecommendationCard } from "./RecommendationCard";
 import { DetectedPosesList } from "./DetectedPosesList";
+import { AIModelSelector } from "./AIModelSelector";
+import { AIAnalysisResults } from "./AIAnalysisResults";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import type { VideoAnalysis } from "@shared/schema";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface AnalysisDashboardProps {
   analysis: VideoAnalysis;
@@ -26,10 +31,53 @@ interface AnalysisDashboardProps {
 
 export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
   const [selectedCategory, setSelectedCategory] = useState(analysis.category);
+  const [visionModel, setVisionModel] = useState("gpt-4o");
+  const [coachingModel, setCoachingModel] = useState("claude-sonnet-4");
+  const [aiResults, setAiResults] = useState<any>(null);
+  const { toast } = useToast();
 
   const handleExport = () => {
     console.log("Exporting analysis report...");
   };
+
+  const runAIAnalysisMutation = useMutation({
+    mutationFn: async () => {
+      // Capture a frame from video for vision analysis (if enabled)
+      let visionResult = null;
+      if (visionModel !== "none") {
+        // For now, we'll skip frame capture - implement later
+        toast({
+          title: "Vision analysis coming soon",
+          description: "Frame capture from video player will be implemented next",
+        });
+      }
+
+      // Run coaching analysis
+      let coachingResult = null;
+      if (coachingModel !== "none") {
+        coachingResult = await apiRequest(`/api/analyses/${analysis.id}/coaching`, {
+          method: "POST",
+          body: JSON.stringify({ model: coachingModel }),
+        });
+      }
+
+      return { vision: visionResult, coaching: coachingResult };
+    },
+    onSuccess: (data) => {
+      setAiResults(data);
+      toast({
+        title: "AI Analysis Complete",
+        description: "Your personalized coaching feedback is ready",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Analysis Failed",
+        description: error.message || "Failed to generate AI analysis",
+        variant: "destructive",
+      });
+    },
+  });
 
   return (
     <div className="h-full w-full flex flex-col overflow-hidden">
@@ -151,6 +199,27 @@ export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
             </TabsContent>
 
             <TabsContent value="progress" className="mt-0 space-y-4 max-w-full">
+              <AIModelSelector
+                visionModel={visionModel}
+                coachingModel={coachingModel}
+                onVisionModelChange={setVisionModel}
+                onCoachingModelChange={setCoachingModel}
+              />
+
+              <Button
+                onClick={() => runAIAnalysisMutation.mutate()}
+                disabled={runAIAnalysisMutation.isPending || (visionModel === "none" && coachingModel === "none")}
+                className="w-full"
+                data-testid="button-ai-analysis"
+              >
+                <Sparkles className="mr-2 h-4 w-4" />
+                {runAIAnalysisMutation.isPending ? "Analyzing..." : "Analyze with AI"}
+              </Button>
+
+              {aiResults && (
+                <AIAnalysisResults results={aiResults} />
+              )}
+
               <ComparisonMode />
               <FormScoreCard 
                 score={analysis.overallScore}
