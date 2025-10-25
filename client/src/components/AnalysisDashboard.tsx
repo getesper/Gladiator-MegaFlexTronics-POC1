@@ -32,8 +32,8 @@ export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
   };
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="px-6 pt-4 pb-2 border-b">
+    <div className="h-full flex flex-col min-w-0">
+      <div className="px-4 lg:px-6 pt-4 pb-2 border-b">
         <Button
           variant="outline"
           size="sm"
@@ -46,25 +46,25 @@ export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
         </Button>
       </div>
 
-      <Tabs defaultValue="overview" className="flex-1 flex flex-col">
-        <div className="px-6 pt-4 pb-2">
-          <TabsList className="grid w-full grid-cols-4 text-xs" data-testid="tabs-analysis">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="detailed">Detailed</TabsTrigger>
-            <TabsTrigger value="corrections">Fixes</TabsTrigger>
-            <TabsTrigger value="progress">Progress</TabsTrigger>
+      <Tabs defaultValue="overview" className="flex-1 flex flex-col min-w-0">
+        <div className="px-4 lg:px-6 pt-4 pb-2">
+          <TabsList className="grid w-full grid-cols-4 text-xs sm:text-sm" data-testid="tabs-analysis">
+            <TabsTrigger value="overview" className="px-2 sm:px-3">Overview</TabsTrigger>
+            <TabsTrigger value="detailed" className="px-2 sm:px-3">Detailed</TabsTrigger>
+            <TabsTrigger value="corrections" className="px-2 sm:px-3">Fixes</TabsTrigger>
+            <TabsTrigger value="progress" className="px-2 sm:px-3">Progress</TabsTrigger>
           </TabsList>
         </div>
 
         <ScrollArea className="flex-1">
-          <div className="p-6 pt-4">
+          <div className="p-4 lg:p-6 pt-4">
             <TabsContent value="overview" className="mt-0 space-y-6">
               <CategorySelector
                 selectedCategory={selectedCategory}
                 onCategoryChange={setSelectedCategory}
               />
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <MetricCard
                   title="Poses Detected"
                   value={(analysis.detectedPoses as any[])?.length || Object.keys(analysis.poseScores as Record<string, number>).length}
@@ -97,7 +97,7 @@ export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
             </TabsContent>
 
             <TabsContent value="detailed" className="mt-0 space-y-6">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <MetricCard
                   title="V-Taper Ratio"
                   value={(analysis.measurements as any).vTaperRatio}
