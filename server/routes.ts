@@ -39,26 +39,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create video analysis after upload
   app.post("/api/analyses", async (req, res) => {
     try {
-      console.log("POST /api/analyses - Creating analysis", req.body);
+      console.log("POST /api/analyses - Creating analysis");
       
+      // Accept either real analysis from client or generate synthetic
       const bodySchema = z.object({
         videoURL: z.string(),
         videoName: z.string(),
         duration: z.number(),
         category: z.string().optional(),
+        // Real analysis data from client (optional)
+        muscularityScore: z.number().optional(),
+        symmetryScore: z.number().optional(),
+        conditioningScore: z.number().optional(),
+        posingScore: z.number().optional(),
+        aestheticsScore: z.number().optional(),
+        measurements: z.any().optional(),
+        detectedPoses: z.array(z.any()).optional(),
+        muscleGroups: z.any().optional(),
+        recommendations: z.array(z.any()).optional(),
+        judgeNotes: z.array(z.any()).optional(),
       });
 
-      const { videoURL, videoName, duration, category } = bodySchema.parse(req.body);
-      console.log("Parsed request:", { videoName, duration, category });
+      const requestData = bodySchema.parse(req.body);
+      console.log("Real analysis data received:", !!requestData.detectedPoses);
 
       // Normalize the video URL to object path
-      const videoPath = objectStorageService.normalizeObjectEntityPath(videoURL);
-      console.log("Normalized video path:", videoPath);
+      const videoPath = objectStorageService.normalizeObjectEntityPath(requestData.videoURL);
 
-      // Analyze the video and calculate scores
-      console.log("Starting video analysis...");
-      const analysisData = await analyzeVideo(videoPath, videoName, duration, category);
-      console.log("Analysis complete, storing in database...");
+      // If client provided real analysis data, use it
+      let analysisData;
+      if (requestData.detectedPoses && requestData.measurements) {
+        console.log("Using real analysis data from client");
+        
+        // Build poseScores from detectedPoses
+        const poseScores: Record<string, number> = {};
+        requestData.detectedPoses.forEach((pose: any) => {
+          poseScores[pose.poseName] = pose.score;
+        });
+
+        const overallScore = Math.round(
+          ((requestData.muscularityScore || 0) +
+            (requestData.symmetryScore || 0) +
+            (requestData.conditioningScore || 0) +
+            (requestData.posingScore || 0) +
+            (requestData.aestheticsScore || 0)) / 5
+        );
+
+        analysisData = {
+          videoUrl: videoPath,
+          videoName: requestData.videoName,
+          category: requestData.category || "bodybuilding",
+          duration: requestData.duration,
+          overallScore,
+          muscularityScore: requestData.muscularityScore || 0,
+          symmetryScore: requestData.symmetryScore || 0,
+          conditioningScore: requestData.conditioningScore || 0,
+          posingScore: requestData.posingScore || 0,
+          aestheticsScore: requestData.aestheticsScore || 0,
+          measurements: requestData.measurements,
+          poseScores,
+          detectedPoses: requestData.detectedPoses,
+          muscleGroups: requestData.muscleGroups || {},
+          recommendations: requestData.recommendations || [],
+          judgeNotes: requestData.judgeNotes || [],
+        };
+      } else {
+        // Fallback to synthetic data if client didn't provide analysis
+        console.log("No real analysis data - using synthetic fallback");
+        analysisData = await analyzeVideo(videoPath, requestData.videoName, requestData.duration, requestData.category);
+      }
 
       // Store analysis in database
       const analysis = await storage.createVideoAnalysis(analysisData);

@@ -7,6 +7,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useQuery } from "@tanstack/react-query";
 import type { VideoAnalysis } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
+import { VideoPoseAnalyzer } from "@/lib/poseAnalyzer";
 
 export default function Home() {
   const [currentAnalysisId, setCurrentAnalysisId] = useState<string | null>(null);
@@ -77,8 +78,15 @@ export default function Home() {
       const duration = await getVideoDuration(file);
       console.log("Video duration:", duration);
 
-      // Create analysis
-      console.log("Creating analysis...");
+      // Perform real pose analysis using MediaPipe
+      console.log("Analyzing video with MediaPipe...");
+      setUploadProgress(0); // Reset for analysis progress
+      const analyzer = new VideoPoseAnalyzer();
+      const analysisResults = await analyzer.analyzeVideo(file);
+      console.log("Pose analysis complete:", analysisResults);
+
+      // Create analysis with real data
+      console.log("Saving analysis...");
       const analysis = await apiRequest<VideoAnalysis>("/api/analyses", {
         method: "POST",
         body: JSON.stringify({
@@ -86,6 +94,7 @@ export default function Home() {
           videoName: file.name,
           duration,
           category: "bodybuilding",
+          ...analysisResults,
         }),
       });
       console.log("Analysis created:", analysis.id);
