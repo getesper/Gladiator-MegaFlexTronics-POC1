@@ -147,12 +147,12 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden max-w-full">
-          <div className="flex-1 flex flex-col p-4 lg:p-6 overflow-y-auto min-w-0 max-w-full">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px] gap-0 overflow-hidden">
+          <div className="flex flex-col p-4 lg:p-6 overflow-y-auto">
             <VideoPlayer videoUrl={currentAnalysis.videoUrl} />
           </div>
           
-          <div className="w-full lg:w-96 xl:w-[28rem] border-t lg:border-t-0 lg:border-l bg-card/50 overflow-y-auto flex-shrink-0">
+          <div className="border-t lg:border-t-0 lg:border-l bg-card/50 overflow-y-auto">
             <AnalysisDashboard analysis={currentAnalysis} />
           </div>
         </div>

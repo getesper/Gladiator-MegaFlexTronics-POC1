@@ -33,7 +33,11 @@ export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
 
   return (
     <div className="h-full w-full flex flex-col overflow-hidden">
-      <div className="px-3 sm:px-4 pt-3 pb-2 border-b flex-shrink-0">
+      <div className="px-3 sm:px-4 pt-3 pb-2 border-b flex-shrink-0 space-y-2">
+        <div className="flex items-center justify-center gap-2 px-2 py-1 rounded-md bg-chart-4/10 border border-chart-4/20">
+          <div className="h-2 w-2 rounded-full bg-chart-4 animate-pulse" />
+          <span className="text-[10px] sm:text-xs font-semibold text-chart-4">Real MediaPipe Analysis</span>
+        </div>
         <Button
           variant="outline"
           size="sm"
