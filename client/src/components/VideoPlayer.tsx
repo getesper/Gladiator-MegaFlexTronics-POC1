@@ -6,14 +6,53 @@ import { Badge } from "@/components/ui/badge";
 
 interface VideoPlayerProps {
   videoUrl: string;
+  onFrameCaptureReady?: (captureFrame: () => string | null) => void;
 }
 
-export function VideoPlayer({ videoUrl }: VideoPlayerProps) {
+export function VideoPlayer({ videoUrl, onFrameCaptureReady }: VideoPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [showOverlay, setShowOverlay] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const captureCurrentFrame = (): string | null => {
+    const video = videoRef.current;
+    if (!video || video.videoWidth === 0 || video.videoHeight === 0) {
+      return null;
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const base64 = canvas.toDataURL("image/jpeg", 0.8);
+    return base64.split(",")[1];
+  };
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !onFrameCaptureReady) return;
+
+    const handleMetadataLoaded = () => {
+      if (video.videoWidth > 0 && video.videoHeight > 0) {
+        onFrameCaptureReady(captureCurrentFrame);
+      }
+    };
+
+    video.addEventListener("loadedmetadata", handleMetadataLoaded);
+    
+    if (video.videoWidth > 0 && video.videoHeight > 0) {
+      onFrameCaptureReady(captureCurrentFrame);
+    }
+
+    return () => {
+      video.removeEventListener("loadedmetadata", handleMetadataLoaded);
+    };
+  }, [onFrameCaptureReady]);
 
   useEffect(() => {
     const video = videoRef.current;

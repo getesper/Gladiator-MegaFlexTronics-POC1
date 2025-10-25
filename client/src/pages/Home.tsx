@@ -16,6 +16,7 @@ export default function Home() {
   const [currentAnalysisId, setCurrentAnalysisId] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [captureFrame, setCaptureFrame] = useState<(() => string | null) | null>(null);
   const { toast } = useToast();
   
   // Load analysis from URL parameter if present
@@ -24,6 +25,11 @@ export default function Home() {
       setCurrentAnalysisId(params.id);
     }
   }, [params]);
+
+  // Reset frame capture when analysis changes (prevents stale capture function)
+  useEffect(() => {
+    setCaptureFrame(null);
+  }, [currentAnalysisId]);
 
   const { data: currentAnalysis, isLoading } = useQuery<VideoAnalysis>({
     queryKey: ["/api/analyses", currentAnalysisId],
@@ -161,11 +167,17 @@ export default function Home() {
       ) : (
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden max-w-full">
           <div className="flex-1 flex flex-col p-3 sm:p-4 lg:p-6 overflow-y-auto min-w-0 max-w-full">
-            <VideoPlayer videoUrl={currentAnalysis.videoUrl} />
+            <VideoPlayer 
+              videoUrl={currentAnalysis.videoUrl}
+              onFrameCaptureReady={(captureFunc) => setCaptureFrame(() => captureFunc)}
+            />
           </div>
           
           <div className="w-full lg:w-96 xl:w-[420px] border-t lg:border-t-0 lg:border-l bg-card/50 overflow-y-auto overflow-x-hidden flex-shrink-0">
-            <AnalysisDashboard analysis={currentAnalysis} />
+            <AnalysisDashboard 
+              analysis={currentAnalysis}
+              captureFrame={captureFrame}
+            />
           </div>
         </div>
       )}

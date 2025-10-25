@@ -27,9 +27,10 @@ import { useToast } from "@/hooks/use-toast";
 
 interface AnalysisDashboardProps {
   analysis: VideoAnalysis;
+  captureFrame?: (() => string | null) | null;
 }
 
-export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
+export function AnalysisDashboard({ analysis, captureFrame }: AnalysisDashboardProps) {
   const [selectedCategory, setSelectedCategory] = useState(analysis.category);
   const [visionModel, setVisionModel] = useState("gpt-4o");
   const [coachingModel, setCoachingModel] = useState("claude-sonnet-4");
@@ -45,11 +46,22 @@ export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
       // Capture a frame from video for vision analysis (if enabled)
       let visionResult = null;
       if (visionModel !== "none") {
-        // For now, we'll skip frame capture - implement later
-        toast({
-          title: "Vision analysis coming soon",
-          description: "Frame capture from video player will be implemented next",
-        });
+        if (!captureFrame) {
+          console.warn("Vision analysis skipped: Frame capture not available");
+        } else {
+          const frameBase64 = captureFrame();
+          if (!frameBase64) {
+            console.warn("Vision analysis skipped: Failed to capture video frame");
+          } else {
+            visionResult = await apiRequest(`/api/analyses/${analysis.id}/vision`, {
+              method: "POST",
+              body: JSON.stringify({ 
+                model: visionModel,
+                frameBase64,
+              }),
+            });
+          }
+        }
       }
 
       // Run coaching analysis
@@ -61,13 +73,23 @@ export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
         });
       }
 
+      if (!visionResult && !coachingResult) {
+        throw new Error("No analysis performed. Please select at least one model.");
+      }
+
       return { vision: visionResult, coaching: coachingResult };
     },
     onSuccess: (data) => {
       setAiResults(data);
+      const parts = [];
+      if (data.vision) parts.push("vision");
+      if (data.coaching) parts.push("coaching");
+      
       toast({
         title: "AI Analysis Complete",
-        description: "Your personalized coaching feedback is ready",
+        description: parts.length > 0 
+          ? `${parts.join(" and ")} analysis ready`
+          : "Analysis complete",
       });
     },
     onError: (error: any) => {
@@ -208,13 +230,27 @@ export function AnalysisDashboard({ analysis }: AnalysisDashboardProps) {
 
               <Button
                 onClick={() => runAIAnalysisMutation.mutate()}
-                disabled={runAIAnalysisMutation.isPending || (visionModel === "none" && coachingModel === "none")}
+                disabled={
+                  runAIAnalysisMutation.isPending || 
+                  (visionModel === "none" && coachingModel === "none") ||
+                  (visionModel !== "none" && !captureFrame)
+                }
                 className="w-full"
                 data-testid="button-ai-analysis"
               >
                 <Sparkles className="mr-2 h-4 w-4" />
-                {runAIAnalysisMutation.isPending ? "Analyzing..." : "Analyze with AI"}
+                {runAIAnalysisMutation.isPending 
+                  ? "Analyzing..." 
+                  : !captureFrame && visionModel !== "none"
+                  ? "Loading video..."
+                  : "Analyze with AI"}
               </Button>
+
+              {!captureFrame && visionModel !== "none" && (
+                <p className="text-xs text-muted-foreground text-center">
+                  Waiting for video to load for frame capture...
+                </p>
+              )}
 
               {aiResults && (
                 <AIAnalysisResults results={aiResults} />

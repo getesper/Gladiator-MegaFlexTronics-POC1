@@ -2,24 +2,24 @@
 
 ## Recent Changes (October 25, 2025)
 
+**AI Analysis Integration - COMPLETE**
+- Integrated 3 AI providers: OpenAI GPT-4o, Google Gemini 2.5, Anthropic Claude Sonnet 4
+- Users can select different models for vision analysis and coaching feedback
+- Vision analysis: Captures current video frame, analyzes muscle definition, vascularity, conditioning
+- Coaching analysis: Generates personalized recommendations from pose measurements
+- Privacy-first: Only frame snapshots + measurements sent to AI, never full video
+- OpenAI uses Replit AI credits (no API key needed), Gemini/Claude require user API keys
+- UI includes model selector, "Analyze with AI" button, loading states, results display
+
 **Fully Responsive Dynamic Layout**
-- Fluid flexbox layout adapts to any screen size in real-time
-- Sidebar uses `clamp(320px, 35vw, 480px)` for dynamic scaling (320-480px range)
+- Fixed sidebar width: 384px (lg), 420px (xl), full-width on mobile
+- Zero horizontal overflow at all viewport sizes
 - Dynamic viewport height (`h-dvh`) for mobile browser compatibility
-- Responsive header: full buttons on desktop, icon-only on mobile
-- All padding and text scales with breakpoints (sm, md, lg)
-- Zero horizontal overflow guaranteed at any viewport size
 
 **Performance Optimizations**
 - Smart frame sampling: 2x faster analysis (every 1s instead of 0.5s)
-- Optimized for powerful local machines (M4 Mac, etc.)
 - All video processing happens locally in browser via MediaPipe
-
-**Enhanced AI Analysis (Schema Ready)**
-- Database supports VLM vision analysis (muscle definition, vascularity, conditioning)
-- Database supports LLM coaching feedback (personalized recommendations)
-- Privacy-first architecture: Only measurements sent to AI, never raw video
-- Using Transformers.js (@xenova/transformers) for local-first processing
+- Frame capture from video player for AI vision analysis
 
 ## Overview
 
