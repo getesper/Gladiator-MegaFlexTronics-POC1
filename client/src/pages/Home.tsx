@@ -16,6 +16,7 @@ export default function Home() {
   const [currentAnalysisId, setCurrentAnalysisId] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [analysisStatus, setAnalysisStatus] = useState<string>(""); 
   const [captureFrame, setCaptureFrame] = useState<(() => string | null) | null>(null);
   const [isFrameReady, setIsFrameReady] = useState(false);
   const { toast } = useToast();
@@ -45,11 +46,13 @@ export default function Home() {
 
   const handleVideoSelect = async (file: File) => {
     setIsAnalyzing(true);
+    setAnalysisStatus("Preparing upload...");
     try {
       console.log("Starting video upload:", file.name, file.size);
       
       // Get upload URL from backend
       console.log("Requesting upload URL...");
+      setAnalysisStatus("Getting upload URL...");
       const { uploadURL } = await apiRequest<{ uploadURL: string }>("/api/objects/upload", {
         method: "POST",
         body: JSON.stringify({ filename: file.name }),
@@ -58,6 +61,7 @@ export default function Home() {
 
       // Upload video to object storage with progress tracking
       console.log("Uploading to object storage...");
+      setAnalysisStatus("Uploading video...");
       
       await new Promise<void>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -99,11 +103,14 @@ export default function Home() {
 
       // Get video duration
       console.log("Getting video duration...");
+      setAnalysisStatus("Processing video...");
+      setUploadProgress(0);
       const duration = await getVideoDuration(file);
       console.log("Video duration:", duration);
 
       // Perform real pose analysis using MediaPipe
       console.log("Analyzing video with MediaPipe...");
+      setAnalysisStatus("Analyzing poses with MediaPipe...");
       setUploadProgress(0); // Reset for analysis progress
       const analyzer = new VideoPoseAnalyzer();
       const analysisResults = await analyzer.analyzeVideo(file);
@@ -111,6 +118,7 @@ export default function Home() {
 
       // Create analysis with real data
       console.log("Saving analysis...");
+      setAnalysisStatus("Saving results...");
       const analysis = await apiRequest<VideoAnalysis>("/api/analyses", {
         method: "POST",
         body: JSON.stringify({
@@ -142,6 +150,7 @@ export default function Home() {
     } finally {
       setIsAnalyzing(false);
       setUploadProgress(0);
+      setAnalysisStatus("");
     }
   };
 
@@ -152,7 +161,12 @@ export default function Home() {
 
   return (
     <div className="h-dvh w-full flex flex-col bg-background overflow-hidden">
-      <Header onNewAnalysis={currentAnalysis ? handleNewAnalysis : undefined} />
+      <Header 
+        onNewAnalysis={currentAnalysis ? handleNewAnalysis : undefined}
+        isAnalyzing={isAnalyzing}
+        uploadProgress={uploadProgress}
+        analysisStatus={analysisStatus}
+      />
       
       {!currentAnalysis ? (
         <div className="flex-1 flex items-center justify-center p-4 sm:p-6 overflow-auto">
