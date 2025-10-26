@@ -52,6 +52,7 @@ export default function Home() {
       console.log("Requesting upload URL...");
       const { uploadURL } = await apiRequest<{ uploadURL: string }>("/api/objects/upload", {
         method: "POST",
+        body: JSON.stringify({ filename: file.name }),
       });
       console.log("Got upload URL:", uploadURL);
 

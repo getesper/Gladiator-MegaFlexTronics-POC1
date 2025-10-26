@@ -44,10 +44,20 @@ export class ObjectStorageService {
     return dir;
   }
 
-  async getObjectEntityUploadURL(): Promise<string> {
+  async getObjectEntityUploadURL(filename?: string): Promise<string> {
     const privateObjectDir = this.getPrivateObjectDir();
     const objectId = randomUUID();
-    const fullPath = `${privateObjectDir}/videos/${objectId}.mp4`;
+    
+    // Extract extension from filename, default to .mp4
+    let extension = '.mp4';
+    if (filename) {
+      const match = filename.match(/\.(mp4|mov|avi|webm|mkv)$/i);
+      if (match) {
+        extension = match[0].toLowerCase();
+      }
+    }
+    
+    const fullPath = `${privateObjectDir}/videos/${objectId}${extension}`;
 
     const { bucketName, objectName } = parseObjectPath(fullPath);
 

@@ -1,6 +1,15 @@
 # GLADIATOR MEGAFLEXTRONICS - Bodybuilding Form Analysis Application
 
-## Recent Changes (October 25, 2025)
+## Recent Changes (October 26, 2025)
+
+**Responsive Layout & Video Playback Fixes**
+- Fixed Competition Category section with responsive text sizing (text-xs/sm)
+- Fixed video file extension preservation during upload (.mov, .mp4, .webm, etc.)
+- Upload endpoint now accepts filename parameter to extract and preserve original extension
+- Added comprehensive error logging to video streaming endpoint
+- All sidebar content now properly sized for mobile devices
+
+## Previous Changes (October 25, 2025)
 
 **AI Analysis Integration - PRODUCTION READY**
 - Integrated 3 AI providers: OpenAI GPT-4o, Google Gemini 2.5, Anthropic Claude Sonnet 4

@@ -13,10 +13,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Serve video files from object storage
   app.get("/objects/:objectPath(*)", async (req, res) => {
     try {
+      console.log("GET /objects - Request path:", req.path);
+      console.log("GET /objects - Full URL:", req.url);
       const objectFile = await objectStorageService.getObjectEntityFile(req.path);
+      console.log("GET /objects - File retrieved successfully");
       objectStorageService.downloadObject(objectFile, res);
     } catch (error) {
-      console.error("Error retrieving object:", error);
+      console.error("Error retrieving object from path:", req.path);
+      console.error("Error details:", error);
       if (error instanceof ObjectNotFoundError) {
         return res.sendStatus(404);
       }
@@ -28,7 +32,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/objects/upload", async (req, res) => {
     try {
       console.log("POST /api/objects/upload - Generating presigned URL");
-      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      const { filename } = req.body;
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL(filename);
       console.log("Generated upload URL successfully");
       res.json({ uploadURL });
     } catch (error) {
