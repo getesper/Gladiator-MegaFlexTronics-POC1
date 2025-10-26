@@ -2,13 +2,26 @@
 
 ## Recent Changes (October 26, 2025)
 
-**VLM-Powered Pose Detection (MAJOR UPGRADE)**
-- Replaced geometric heuristics with Vision Language Model analysis for accurate pose identification
-- Added `/api/analyses/:id/identify-poses` endpoint using GPT-4o/Gemini/Claude to identify poses from actual frame images
-- New "Re-Identify Poses with VLM" button in Progress tab for on-demand pose re-identification
-- VLM analyzes each frame snapshot and returns: pose name, confidence score, quality score, and notes
-- Fixes issue where pose names didn't match what was actually in the video frames
-- Architecture: MediaPipe captures frames → VLM identifies actual poses → Updates database with correct data
+**🎯 Professional IFBB Pose Detection System (COMPLETE OVERHAUL)**
+- **VLM-Powered Identification**: Vision Language Models (GPT-4o/Gemini 2.5 Pro/Claude Sonnet 4) analyze actual frame images to identify poses
+- **8 Mandatory IFBB Poses**: Front Double Biceps, Front Lat Spread, Side Chest, Back Double Biceps, Back Lat Spread, Side Triceps, Abdominals & Thighs, Most Muscular
+- **Professional Judging Criteria**: VLM evaluates based on IFBB standards (Muscularity, Symmetry, Conditioning, Presentation)
+- **Research-Based Prompts**: Comprehensive pose descriptions sourced from official IFBB Pro League rules and 2024 judging guidelines
+- **On-Demand Re-Identification**: "Re-Identify Poses with VLM" button in Progress tab triggers AI analysis of all detected poses
+- **Architecture**: MediaPipe (client-side) captures skeletal keypoints + frame snapshots → VLM analyzes images → Database updated with accurate pose names + quality scores
+
+**📍 Interactive Video Timeline**
+- **Visual Pose Markers**: Clickable dots on timeline scrubber showing exact timestamps of detected poses
+- **Hover Tooltips**: Display pose name, timestamp, and quality score on marker hover
+- **Instant Seeking**: Click any marker to jump directly to that pose in the video
+- **Proportional Positioning**: Markers positioned accurately across video duration
+
+**🦴 Real-Time Skeleton Overlay**
+- **MediaPipe Landmarks Visualization**: Green skeleton (dots + lines) drawn on video during playback
+- **33 Body Keypoints**: Full body tracking including face, torso, arms, legs with joint connections
+- **Toggle Control**: "Pose Overlay" button to show/hide skeleton visualization
+- **Smart Display**: Overlay shows landmarks from closest detected pose (within 1 second of current playback time)
+- **Performance Optimized**: Canvas rendering matches video dimensions, updates on timeupdate events
 
 **Responsive Layout Fixes - Complete**
 - Removed ALL hard-coded widths (lg:w-96 xl:w-[420px]) from sidebar
