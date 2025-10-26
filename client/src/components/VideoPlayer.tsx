@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
+import { drawPoseSkeleton, findClosestPose } from "@/lib/skeletonDrawer";
 
 interface DetectedPose {
   poseName: string;
@@ -24,6 +25,7 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
   const [duration, setDuration] = useState(0);
   const [showOverlay, setShowOverlay] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const captureCurrentFrame = (): string | null => {
     const video = videoRef.current;
@@ -67,7 +69,10 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
     const video = videoRef.current;
     if (!video) return;
 
-    const handleTimeUpdate = () => setCurrentTime(video.currentTime);
+    const handleTimeUpdate = () => {
+      setCurrentTime(video.currentTime);
+      drawSkeletonOverlay(video.currentTime);
+    };
     const handleLoadedMetadata = () => setDuration(video.duration);
 
     video.addEventListener("timeupdate", handleTimeUpdate);
@@ -77,7 +82,39 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
       video.removeEventListener("timeupdate", handleTimeUpdate);
       video.removeEventListener("loadedmetadata", handleLoadedMetadata);
     };
-  }, []);
+  }, [detectedPoses, showOverlay]);
+
+  const drawSkeletonOverlay = (currentTime: number) => {
+    const canvas = canvasRef.current;
+    const video = videoRef.current;
+    
+    if (!canvas || !video || !showOverlay) {
+      if (canvas) {
+        const ctx = canvas.getContext("2d");
+        if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      return;
+    }
+
+    // Match canvas size to video dimensions
+    if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+    }
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // Clear previous drawing
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Find pose landmarks closest to current time
+    const landmarks = findClosestPose(detectedPoses, currentTime);
+    
+    if (landmarks) {
+      drawPoseSkeleton(ctx, landmarks, canvas.width, canvas.height, "#00ff88", 3);
+    }
+  };
 
   const togglePlay = () => {
     const video = videoRef.current;
@@ -120,7 +157,11 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
       />
       
       {showOverlay && (
-        <canvas className="absolute inset-0 pointer-events-none opacity-60" />
+        <canvas 
+          ref={canvasRef}
+          className="absolute inset-0 pointer-events-none opacity-80" 
+          style={{ width: '100%', height: '100%' }}
+        />
       )}
       
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 space-y-3">

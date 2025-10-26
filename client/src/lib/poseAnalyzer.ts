@@ -31,6 +31,7 @@ interface DetectedPose {
   timestamp: number;
   score: number;
   frameSnapshot: string | null;
+  landmarks?: any; // MediaPipe pose landmarks for skeleton visualization
 }
 
 interface AnalysisResult {
@@ -285,6 +286,7 @@ export class VideoPoseAnalyzer {
           timestamp: Math.round(frame.timestamp),
           score: this.scorePose(frame.landmarks, poseName),
           frameSnapshot: frame.frameSnapshot, // Now includes actual snapshot!
+          landmarks: frame.landmarks, // Store MediaPipe landmarks for skeleton overlay
         });
         lastPoseName = poseName;
         lastTimestamp = frame.timestamp;
