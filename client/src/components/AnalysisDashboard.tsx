@@ -140,7 +140,7 @@ export function AnalysisDashboard({ analysis, captureFrame, isFrameReady = false
                 onCategoryChange={setSelectedCategory}
               />
 
-              <div className="grid grid-cols-2 gap-2 sm:gap-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 w-full max-w-full min-w-0">
                 <MetricCard
                   title="Poses Detected"
                   value={(analysis.detectedPoses as any[])?.length || Object.keys(analysis.poseScores as Record<string, number>).length}
@@ -176,7 +176,7 @@ export function AnalysisDashboard({ analysis, captureFrame, isFrameReady = false
             </TabsContent>
 
             <TabsContent value="detailed" className="mt-0 space-y-4 w-full max-w-full min-w-0">
-              <div className="grid grid-cols-2 gap-2 sm:gap-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 w-full max-w-full min-w-0">
                 <MetricCard
                   title="V-Taper Ratio"
                   value={(analysis.measurements as any).vTaperRatio}
