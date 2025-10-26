@@ -174,19 +174,21 @@ export default function Home() {
         </div>
       ) : (
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden w-full max-w-full">
-          <div className="w-full lg:flex-[6] flex flex-col p-3 sm:p-4 lg:p-6 overflow-y-auto min-w-0">
-            <VideoPlayer 
-              videoUrl={currentAnalysis.videoUrl}
-              onFrameCaptureReady={handleFrameCaptureReady}
-              posesDetected={
-                (currentAnalysis.detectedPoses as any[])?.length || 
-                Object.keys(currentAnalysis.poseScores as Record<string, number>).length
-              }
-              detectedPoses={currentAnalysis.detectedPoses as any[] || []}
-            />
+          <div className="w-full lg:flex-[6] flex items-center justify-center p-3 sm:p-4 lg:p-6 overflow-auto min-w-0">
+            <div className="w-full max-w-full">
+              <VideoPlayer 
+                videoUrl={currentAnalysis.videoUrl}
+                onFrameCaptureReady={handleFrameCaptureReady}
+                posesDetected={
+                  (currentAnalysis.detectedPoses as any[])?.length || 
+                  Object.keys(currentAnalysis.poseScores as Record<string, number>).length
+                }
+                detectedPoses={currentAnalysis.detectedPoses as any[] || []}
+              />
+            </div>
           </div>
           
-          <div className="w-full lg:flex-[4] border-t lg:border-t-0 lg:border-l bg-card/50 overflow-y-auto overflow-x-hidden min-w-0">
+          <div className="w-full lg:flex-[4] border-t lg:border-t-0 lg:border-l bg-card/50 overflow-hidden min-w-0">
             <AnalysisDashboard 
               analysis={currentAnalysis}
               captureFrame={captureFrame}

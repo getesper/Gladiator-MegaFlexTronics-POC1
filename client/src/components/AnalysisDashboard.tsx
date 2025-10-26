@@ -150,25 +150,25 @@ export function AnalysisDashboard({ analysis, captureFrame, isFrameReady = false
         </Button>
       </div>
 
-      <Tabs defaultValue="overview" className="flex-1 flex flex-col overflow-hidden min-h-0 w-full max-w-full min-w-0">
-        <div className="px-3 sm:px-4 pt-3 pb-2 flex-shrink-0 w-full max-w-full min-w-0">
-          <TabsList className="grid w-full max-w-full grid-cols-4 text-xs" data-testid="tabs-analysis">
-            <TabsTrigger value="overview" className="px-1 text-[10px] sm:text-xs min-w-0">Overview</TabsTrigger>
-            <TabsTrigger value="detailed" className="px-1 text-[10px] sm:text-xs min-w-0">Detailed</TabsTrigger>
-            <TabsTrigger value="corrections" className="px-1 text-[10px] sm:text-xs min-w-0">Fixes</TabsTrigger>
-            <TabsTrigger value="progress" className="px-1 text-[10px] sm:text-xs min-w-0">Progress</TabsTrigger>
+      <Tabs defaultValue="overview" className="flex-1 flex flex-col overflow-hidden min-h-0 w-full min-w-0">
+        <div className="px-3 sm:px-4 pt-3 pb-2 flex-shrink-0 w-full min-w-0">
+          <TabsList className="grid w-full grid-cols-4 text-xs" data-testid="tabs-analysis">
+            <TabsTrigger value="overview" className="px-1 text-[10px] sm:text-xs min-w-0 truncate">Overview</TabsTrigger>
+            <TabsTrigger value="detailed" className="px-1 text-[10px] sm:text-xs min-w-0 truncate">Detailed</TabsTrigger>
+            <TabsTrigger value="corrections" className="px-1 text-[10px] sm:text-xs min-w-0 truncate">Fixes</TabsTrigger>
+            <TabsTrigger value="progress" className="px-1 text-[10px] sm:text-xs min-w-0 truncate">Progress</TabsTrigger>
           </TabsList>
         </div>
 
-        <ScrollArea className="flex-1 min-h-0 w-full max-w-full overflow-x-hidden">
-          <div className="p-3 sm:p-4 pt-2 space-y-4 w-full max-w-full min-w-0">
-            <TabsContent value="overview" className="mt-0 space-y-4 w-full max-w-full min-w-0">
+        <ScrollArea className="flex-1 min-h-0 w-full">
+          <div className="p-3 sm:p-4 pt-2 space-y-4 w-full min-w-0">
+            <TabsContent value="overview" className="mt-0 space-y-4 w-full min-w-0">
               <CategorySelector
                 selectedCategory={selectedCategory}
                 onCategoryChange={setSelectedCategory}
               />
 
-              <div className="grid grid-cols-2 gap-2 sm:gap-3 w-full max-w-full min-w-0">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 w-full min-w-0">
                 <MetricCard
                   title="Poses Detected"
                   value={(analysis.detectedPoses as any[])?.length || Object.keys(analysis.poseScores as Record<string, number>).length}
@@ -203,8 +203,8 @@ export function AnalysisDashboard({ analysis, captureFrame, isFrameReady = false
               <FrameTimeline />
             </TabsContent>
 
-            <TabsContent value="detailed" className="mt-0 space-y-4 w-full max-w-full min-w-0">
-              <div className="grid grid-cols-2 gap-2 sm:gap-3 w-full max-w-full min-w-0">
+            <TabsContent value="detailed" className="mt-0 space-y-4 w-full min-w-0">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 w-full min-w-0">
                 <MetricCard
                   title="V-Taper Ratio"
                   value={(analysis.measurements as any).vTaperRatio}
@@ -246,15 +246,15 @@ export function AnalysisDashboard({ analysis, captureFrame, isFrameReady = false
               </div>
             </TabsContent>
 
-            <TabsContent value="corrections" className="mt-0 space-y-4 w-full max-w-full min-w-0">
+            <TabsContent value="corrections" className="mt-0 space-y-4 w-full min-w-0">
               <PoseCorrections />
               <ConditioningCard measurements={analysis.measurements as any} />
               <MuscleGroupCard muscleGroups={analysis.muscleGroups as Record<string, string>} />
               <SymmetryCard measurements={analysis.measurements as any} />
             </TabsContent>
 
-            <TabsContent value="progress" className="mt-0 space-y-4 w-full max-w-full min-w-0">
-              <Card data-testid="card-pose-identification" className="w-full max-w-full min-w-0 border-primary/20 bg-primary/5">
+            <TabsContent value="progress" className="mt-0 space-y-4 w-full min-w-0">
+              <Card data-testid="card-pose-identification" className="w-full min-w-0 border-primary/20 bg-primary/5">
                 <CardHeader className="pb-3">
                   <h3 className="text-sm font-heading font-semibold">🎯 VLM Pose Identification</h3>
                   <p className="text-xs text-muted-foreground">
