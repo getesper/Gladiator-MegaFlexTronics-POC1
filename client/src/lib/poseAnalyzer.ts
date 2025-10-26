@@ -94,7 +94,7 @@ export class VideoPoseAnalyzer {
 
     console.log(`Analyzing ${timestamps.length} frames from ${duration}s video...`);
 
-    const allPoseResults: Array<{ timestamp: number; landmarks: any }> = [];
+    const allPoseResults: Array<{ timestamp: number; landmarks: any; frameSnapshot: string }> = [];
 
     // Analyze frames
     for (const timestamp of timestamps) {
@@ -103,9 +103,13 @@ export class VideoPoseAnalyzer {
 
       const results = await this.detectPoseInCurrentFrame();
       if (results && results.poseLandmarks) {
+        // Capture frame snapshot
+        const frameSnapshot = this.captureCurrentFrame();
+        
         allPoseResults.push({
           timestamp,
           landmarks: results.poseLandmarks,
+          frameSnapshot,
         });
       }
     }
@@ -117,6 +121,23 @@ export class VideoPoseAnalyzer {
 
     // Analyze the collected pose data
     return this.analyzeResults(allPoseResults, duration);
+  }
+
+  private captureCurrentFrame(): string {
+    if (!this.videoElement || !this.canvas) return '';
+    
+    // Canvas is already set up with the current frame from detectPoseInCurrentFrame
+    // Convert to base64 at reduced size for storage efficiency
+    const thumbnailCanvas = document.createElement('canvas');
+    const maxWidth = 400; // Thumbnail width
+    const aspectRatio = this.canvas.height / this.canvas.width;
+    thumbnailCanvas.width = maxWidth;
+    thumbnailCanvas.height = maxWidth * aspectRatio;
+    
+    const ctx = thumbnailCanvas.getContext('2d')!;
+    ctx.drawImage(this.canvas, 0, 0, thumbnailCanvas.width, thumbnailCanvas.height);
+    
+    return thumbnailCanvas.toDataURL('image/jpeg', 0.8);
   }
 
   private async detectPoseInCurrentFrame(): Promise<Results | null> {
@@ -140,7 +161,7 @@ export class VideoPoseAnalyzer {
     });
   }
 
-  private analyzeResults(poseResults: Array<{ timestamp: number; landmarks: any }>, duration: number): AnalysisResult {
+  private analyzeResults(poseResults: Array<{ timestamp: number; landmarks: any; frameSnapshot: string }>, duration: number): AnalysisResult {
     if (poseResults.length === 0) {
       throw new Error("No poses detected in video");
     }
@@ -245,7 +266,7 @@ export class VideoPoseAnalyzer {
     return Math.max(70, Math.min(100, symmetryScore));
   }
 
-  private detectBodybuildingPoses(poseResults: Array<{ timestamp: number; landmarks: any }>): DetectedPose[] {
+  private detectBodybuildingPoses(poseResults: Array<{ timestamp: number; landmarks: any; frameSnapshot: string }>): DetectedPose[] {
     const detectedPoses: DetectedPose[] = [];
     let lastPoseName: string | null = null;
     let lastTimestamp = -999;
@@ -263,7 +284,7 @@ export class VideoPoseAnalyzer {
           poseName,
           timestamp: Math.round(frame.timestamp),
           score: this.scorePose(frame.landmarks, poseName),
-          frameSnapshot: null,
+          frameSnapshot: frame.frameSnapshot, // Now includes actual snapshot!
         });
         lastPoseName = poseName;
         lastTimestamp = frame.timestamp;

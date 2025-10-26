@@ -193,8 +193,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Update analysis with vision results
       await storage.updateVideoAnalysis(req.params.id, {
-        muscleDefinition: visionResult.muscleDefinition,
-        conditioningDetails: JSON.stringify({
+        vlmAnalysis: JSON.stringify({
+          muscleDefinition: visionResult.muscleDefinition,
           vascularity: visionResult.vascularity,
           conditioningNotes: visionResult.conditioningNotes,
           overallImpression: visionResult.overallImpression,
