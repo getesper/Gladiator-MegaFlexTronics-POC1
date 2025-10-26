@@ -349,3 +349,191 @@ Respond with JSON only:
 
   throw new Error(`Unsupported model for pose identification: ${model}`);
 }
+
+export interface MuscleAnalysisInput {
+  frameBase64: string;
+}
+
+export interface MuscleGroupScore {
+  development: number;
+  definition: number;
+  symmetry: number;
+  conditioning: number;
+  feedback: string;
+}
+
+export interface MuscleAnalysisResult {
+  pectorals: MuscleGroupScore;
+  biceps: MuscleGroupScore;
+  triceps: MuscleGroupScore;
+  forearms: MuscleGroupScore;
+  shoulders: MuscleGroupScore;
+  abs: MuscleGroupScore;
+  obliques: MuscleGroupScore;
+  lats: MuscleGroupScore;
+  traps: MuscleGroupScore;
+  quads: MuscleGroupScore;
+  hamstrings: MuscleGroupScore;
+  calves: MuscleGroupScore;
+  glutes: MuscleGroupScore;
+  overallAssessment: string;
+}
+
+export async function analyzeMuscleGroups(
+  model: string,
+  input: MuscleAnalysisInput
+): Promise<MuscleAnalysisResult> {
+  const prompt = `You are an expert IFBB Pro League judge specializing in detailed muscle group assessment. Analyze this bodybuilding image and evaluate EACH individual muscle group based on professional bodybuilding standards.
+
+For each muscle group, provide scores (0-100) for:
+1. **Development**: Overall size, fullness, and muscle mass
+2. **Definition**: Muscle separation, striations, and visible detail
+3. **Symmetry**: Balanced development (left vs right side)
+4. **Conditioning**: Dryness, hardness, vascularity, low body fat appearance
+
+Muscle groups to evaluate:
+- **Pectorals**: Upper/middle/lower chest development, separation
+- **Biceps**: Peak, thickness, bicep head separation
+- **Triceps**: Horseshoe definition, lateral/long/medial head development
+- **Forearms**: Brachioradialis, flexor/extensor development
+- **Shoulders** (Deltoids): Front/side/rear delt separation and roundness
+- **Abs** (Rectus Abdominis): Six-pack definition, depth of separation
+- **Obliques**: Side ab development, V-taper contribution
+- **Lats** (Latissimus Dorsi): Width, thickness, lower lat insertion
+- **Traps** (Trapezius): Upper trap height, middle trap thickness
+- **Quads** (Quadriceps): Sweep, teardrop, vastus development, separation
+- **Hamstrings**: Thickness, separation from glutes
+- **Calves**: Gastrocnemius size, soleus development, diamond shape
+- **Glutes**: Fullness, separation from hamstrings
+
+For each muscle group's feedback, provide:
+- Specific observations (2-3 sentences)
+- What's working well
+- What could be improved
+- Training recommendations if needed
+
+Respond in JSON format matching this exact structure:
+{
+  "pectorals": {
+    "development": 85,
+    "definition": 78,
+    "symmetry": 90,
+    "conditioning": 82,
+    "feedback": "Upper chest shows excellent development with clear clavicular head separation. Lower pecs could use more thickness. Overall chest-to-shoulder ratio is aesthetically pleasing."
+  },
+  "biceps": { ... },
+  "triceps": { ... },
+  "forearms": { ... },
+  "shoulders": { ... },
+  "abs": { ... },
+  "obliques": { ... },
+  "lats": { ... },
+  "traps": { ... },
+  "quads": { ... },
+  "hamstrings": { ... },
+  "calves": { ... },
+  "glutes": { ... },
+  "overallAssessment": "3-4 sentence summary of physique strengths and priority areas for improvement"
+}`;
+
+  if (model === "gpt-4o") {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      max_completion_tokens: 4096,
+      response_format: { type: "json_object" },
+      messages: [{
+        role: "user",
+        content: [
+          { type: "text", text: prompt },
+          { 
+            type: "image_url", 
+            image_url: { url: `data:image/jpeg;base64,${input.frameBase64}` } 
+          }
+        ]
+      }]
+    });
+
+    return JSON.parse(response.choices[0].message.content || "{}");
+  }
+
+  if (model === "gemini-2.5-pro") {
+    const muscleGroupSchema = {
+      type: "object",
+      properties: {
+        development: { type: "number" },
+        definition: { type: "number" },
+        symmetry: { type: "number" },
+        conditioning: { type: "number" },
+        feedback: { type: "string" },
+      },
+      required: ["development", "definition", "symmetry", "conditioning", "feedback"],
+    };
+
+    const response = await gemini.models.generateContent({
+      model: "gemini-2.5-pro",
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "object",
+          properties: {
+            pectorals: muscleGroupSchema,
+            biceps: muscleGroupSchema,
+            triceps: muscleGroupSchema,
+            forearms: muscleGroupSchema,
+            shoulders: muscleGroupSchema,
+            abs: muscleGroupSchema,
+            obliques: muscleGroupSchema,
+            lats: muscleGroupSchema,
+            traps: muscleGroupSchema,
+            quads: muscleGroupSchema,
+            hamstrings: muscleGroupSchema,
+            calves: muscleGroupSchema,
+            glutes: muscleGroupSchema,
+            overallAssessment: { type: "string" },
+          },
+          required: ["pectorals", "biceps", "triceps", "forearms", "shoulders", "abs", "obliques", "lats", "traps", "quads", "hamstrings", "calves", "glutes", "overallAssessment"],
+        },
+      },
+      contents: [
+        {
+          inlineData: {
+            data: input.frameBase64,
+            mimeType: "image/jpeg",
+          },
+        },
+        prompt,
+      ],
+    });
+
+    return JSON.parse(response.text || "{}");
+  }
+
+  if (model === "claude-sonnet-4") {
+    const response = await anthropic.messages.create({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 4096,
+      messages: [{
+        role: "user",
+        content: [
+          {
+            type: "image",
+            source: {
+              type: "base64",
+              media_type: "image/jpeg",
+              data: input.frameBase64
+            }
+          },
+          {
+            type: "text",
+            text: prompt + "\n\nRespond with valid JSON only."
+          }
+        ]
+      }]
+    });
+
+    const textBlock = response.content.find((block: any) => block.type === "text") as any;
+    return JSON.parse(textBlock?.text || "{}");
+  }
+
+  throw new Error(`Unsupported model for muscle analysis: ${model}`);
+}

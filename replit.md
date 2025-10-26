@@ -2,6 +2,18 @@
 
 ## Recent Changes (October 26, 2025)
 
+**💪 Detailed Per-Muscle VLM Analysis**
+- **Individual Muscle Scoring**: 13 muscle groups analyzed separately (pectorals, biceps, triceps, forearms, shoulders, abs, obliques, lats, traps, quads, hamstrings, glutes, calves)
+- **4-Dimensional Scores**: Each muscle gets Development, Definition, Symmetry, and Conditioning scores (0-100)
+- **Personalized Feedback**: AI-generated specific feedback for each muscle group with strengths and improvement areas
+- **Tabbed UI**: Organized muscle groups into Upper Body, Arms, Core, and Lower Body tabs for easy navigation
+- **Overall Assessment**: Comprehensive physique summary highlighting priority areas
+- **Multi-Model Support**: Works with GPT-4o, Gemini 2.5 Pro, and Claude Sonnet 4
+- **Database Storage**: Added `muscleAnalysis` JSONB field to persist detailed muscle data
+- **Progress Tab Integration**: New "Detailed Muscle Analysis" card in Progress tab with model selector
+
+## Previous Updates (October 26, 2025)
+
 **🎯 Professional IFBB Pose Detection System (COMPLETE OVERHAUL)**
 - **VLM-Powered Identification**: Vision Language Models (GPT-4o/Gemini 2.5 Pro/Claude Sonnet 4) analyze actual frame images to identify poses
 - **8 Mandatory IFBB Poses**: Front Double Biceps, Front Lat Spread, Side Chest, Back Double Biceps, Back Lat Spread, Side Triceps, Abdominals & Thighs, Most Muscular

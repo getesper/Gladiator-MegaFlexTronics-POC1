@@ -17,6 +17,7 @@ import { DetectedPosesList } from "./DetectedPosesList";
 import { PoseSnapshots } from "./PoseSnapshots";
 import { AIModelSelector } from "./AIModelSelector";
 import { AIAnalysisResults } from "./AIAnalysisResults";
+import { DetailedMuscleAnalysis } from "./DetailedMuscleAnalysis";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,8 @@ export function AnalysisDashboard({ analysis, captureFrame, isFrameReady = false
   const [coachingModel, setCoachingModel] = useState("claude-sonnet-4");
   const [aiResults, setAiResults] = useState<any>(null);
   const [poseIdentModel, setPoseIdentModel] = useState("gpt-4o");
+  const [muscleAnalysisModel, setMuscleAnalysisModel] = useState("gpt-4o");
+  const [muscleAnalysisResults, setMuscleAnalysisResults] = useState<any>(analysis.muscleAnalysis || null);
   const { toast } = useToast();
 
   const handleExport = () => {
@@ -66,6 +69,43 @@ export function AnalysisDashboard({ analysis, captureFrame, isFrameReady = false
       toast({
         title: "Pose Identification Failed",
         description: error.message || "Failed to identify poses",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const runMuscleAnalysisMutation = useMutation({
+    mutationFn: async () => {
+      if (!captureFrame) {
+        throw new Error("Frame capture not available");
+      }
+      
+      const frameBase64 = captureFrame();
+      if (!frameBase64) {
+        throw new Error("Failed to capture video frame");
+      }
+
+      const result = await apiRequest(`/api/analyses/${analysis.id}/muscle-analysis`, {
+        method: "POST",
+        body: JSON.stringify({ 
+          model: muscleAnalysisModel,
+          frameBase64,
+        }),
+      });
+      return result;
+    },
+    onSuccess: (data) => {
+      setMuscleAnalysisResults(data);
+      toast({
+        title: "Muscle Analysis Complete!",
+        description: "Detailed per-muscle breakdown ready",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/analyses"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Muscle Analysis Failed",
+        description: error.message || "Failed to analyze muscle groups",
         variant: "destructive",
       });
     },
@@ -256,7 +296,7 @@ export function AnalysisDashboard({ analysis, captureFrame, isFrameReady = false
             <TabsContent value="progress" className="mt-0 space-y-4 w-full min-w-0">
               <Card data-testid="card-pose-identification" className="w-full min-w-0 border-primary/20 bg-primary/5">
                 <CardHeader className="pb-3">
-                  <h3 className="text-sm font-heading font-semibold">🎯 VLM Pose Identification</h3>
+                  <h3 className="text-sm font-heading font-semibold">VLM Pose Identification</h3>
                   <p className="text-xs text-muted-foreground">
                     Use Vision Language Models to accurately identify poses from video frames
                   </p>
@@ -313,6 +353,53 @@ export function AnalysisDashboard({ analysis, captureFrame, isFrameReady = false
 
               {aiResults && (
                 <AIAnalysisResults results={aiResults} />
+              )}
+
+              <Card data-testid="card-muscle-analysis" className="w-full min-w-0 border-chart-2/20 bg-chart-2/5">
+                <CardHeader className="pb-3">
+                  <h3 className="text-sm font-heading font-semibold">Detailed Muscle Analysis</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Get individual scores for each muscle group (pecs, biceps, triceps, abs, etc.)
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium">Select Model</label>
+                    <select
+                      value={muscleAnalysisModel}
+                      onChange={(e) => setMuscleAnalysisModel(e.target.value)}
+                      className="w-full px-3 py-2 text-xs rounded-md border bg-background"
+                      data-testid="select-muscle-model"
+                    >
+                      <option value="gpt-4o">GPT-4o (Replit Credits)</option>
+                      <option value="gemini-2.5-pro">Gemini 2.5 Pro (Requires API Key)</option>
+                      <option value="claude-sonnet-4">Claude Sonnet 4 (Requires API Key)</option>
+                    </select>
+                  </div>
+                  
+                  <Button
+                    onClick={() => runMuscleAnalysisMutation.mutate()}
+                    disabled={runMuscleAnalysisMutation.isPending || !isFrameReady}
+                    className="w-full"
+                    variant="default"
+                    data-testid="button-muscle-analysis"
+                  >
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    {runMuscleAnalysisMutation.isPending 
+                      ? "Analyzing Muscles..." 
+                      : !isFrameReady
+                      ? "Loading video..."
+                      : "Analyze Individual Muscles"}
+                  </Button>
+                  
+                  <p className="text-[10px] text-muted-foreground italic">
+                    ⚡ Analyzes 13 muscle groups: pecs, biceps, triceps, forearms, shoulders, abs, obliques, lats, traps, quads, hamstrings, glutes, calves
+                  </p>
+                </CardContent>
+              </Card>
+
+              {muscleAnalysisResults && (
+                <DetailedMuscleAnalysis muscleData={muscleAnalysisResults} />
               )}
 
               <ComparisonMode />

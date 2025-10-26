@@ -5,7 +5,7 @@ import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { analyzeVideo } from "./poseAnalysis";
 import { insertVideoAnalysisSchema } from "@shared/schema";
 import { z } from "zod";
-import { analyzeVision, generateCoaching, identifyPoseFromFrame } from "./ai/aiService";
+import { analyzeVision, generateCoaching, identifyPoseFromFrame, analyzeMuscleGroups } from "./ai/aiService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const objectStorageService = new ObjectStorageService();
@@ -341,6 +341,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       console.error("Error generating coaching:", error);
       res.status(500).json({ error: "Failed to generate coaching feedback" });
+    }
+  });
+
+  // Detailed Muscle Analysis (VLM analyzes individual muscle groups)
+  app.post("/api/analyses/:id/muscle-analysis", async (req, res) => {
+    try {
+      console.log(`POST /api/analyses/${req.params.id}/muscle-analysis - Running detailed muscle analysis`);
+      
+      const bodySchema = z.object({
+        model: z.string(),
+        frameBase64: z.string(),
+      });
+
+      const { model, frameBase64 } = bodySchema.parse(req.body);
+      
+      // Get the analysis
+      const analysis = await storage.getVideoAnalysis(req.params.id);
+      if (!analysis) {
+        return res.status(404).json({ error: "Analysis not found" });
+      }
+
+      // Run detailed muscle analysis
+      const muscleAnalysisResult = await analyzeMuscleGroups(model, {
+        frameBase64,
+      });
+
+      // Update analysis with muscle analysis results
+      await storage.updateVideoAnalysis(req.params.id, {
+        muscleAnalysis: muscleAnalysisResult as any,
+      });
+
+      console.log("Muscle analysis complete");
+      res.json(muscleAnalysisResult);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      console.error("Error in muscle analysis:", error);
+      res.status(500).json({ error: "Failed to run muscle analysis" });
     }
   });
 
