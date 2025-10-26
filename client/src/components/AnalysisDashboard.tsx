@@ -20,6 +20,7 @@ import { AIAnalysisResults } from "./AIAnalysisResults";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Download } from "lucide-react";
 import type { VideoAnalysis } from "@shared/schema";
 import { useMutation } from "@tanstack/react-query";
