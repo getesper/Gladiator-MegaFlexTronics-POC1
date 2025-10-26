@@ -5,7 +5,7 @@ import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { analyzeVideo } from "./poseAnalysis";
 import { insertVideoAnalysisSchema } from "@shared/schema";
 import { z } from "zod";
-import { analyzeVision, generateCoaching } from "./ai/aiService";
+import { analyzeVision, generateCoaching, identifyPoseFromFrame } from "./ai/aiService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const objectStorageService = new ObjectStorageService();
@@ -208,6 +208,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       console.error("Error in vision analysis:", error);
       res.status(500).json({ error: "Failed to run vision analysis" });
+    }
+  });
+
+  // VLM Pose Re-Identification (uses VLM to correctly identify poses from frames)
+  app.post("/api/analyses/:id/identify-poses", async (req, res) => {
+    try {
+      console.log(`POST /api/analyses/${req.params.id}/identify-poses - Re-identifying poses with VLM`);
+      
+      const bodySchema = z.object({
+        model: z.string().default("gpt-4o"),
+      });
+
+      const { model } = bodySchema.parse(req.body);
+      
+      // Get the analysis
+      const analysis = await storage.getVideoAnalysis(req.params.id);
+      if (!analysis) {
+        return res.status(404).json({ error: "Analysis not found" });
+      }
+
+      const detectedPoses = analysis.detectedPoses as any[] || [];
+      
+      if (detectedPoses.length === 0) {
+        return res.status(400).json({ error: "No poses found to re-identify" });
+      }
+
+      console.log(`Re-identifying ${detectedPoses.length} poses using ${model}`);
+
+      // Re-identify each pose using VLM
+      const reidentifiedPoses = await Promise.all(
+        detectedPoses.map(async (pose) => {
+          if (!pose.frameSnapshot) {
+            console.warn(`Pose at ${pose.timestamp}s has no frame snapshot, skipping`);
+            return pose;
+          }
+
+          try {
+            // Extract base64 from data URL
+            const base64Data = pose.frameSnapshot.split(",")[1] || pose.frameSnapshot;
+            
+            const result = await identifyPoseFromFrame(model, {
+              frameBase64: base64Data
+            });
+
+            return {
+              ...pose,
+              poseName: result.poseName,
+              score: Math.round(result.quality),
+              confidence: result.confidence,
+              vlmNotes: result.notes,
+            };
+          } catch (error) {
+            console.error(`Error identifying pose at ${pose.timestamp}s:`, error);
+            return pose; // Keep original if identification fails
+          }
+        })
+      );
+
+      // Update analysis with corrected poses
+      const updatedPoseScores: Record<string, number> = {};
+      reidentifiedPoses.forEach(pose => {
+        updatedPoseScores[pose.poseName] = Math.max(
+          updatedPoseScores[pose.poseName] || 0,
+          pose.score
+        );
+      });
+
+      await storage.updateVideoAnalysis(req.params.id, {
+        detectedPoses: reidentifiedPoses as any,
+        poseScores: updatedPoseScores as any,
+      });
+
+      console.log(`Successfully re-identified poses. Found: ${Object.keys(updatedPoseScores).join(", ")}`);
+
+      res.json({
+        message: "Poses re-identified successfully",
+        detectedPoses: reidentifiedPoses,
+        summary: {
+          totalPoses: reidentifiedPoses.length,
+          uniquePoses: Object.keys(updatedPoseScores).length,
+          poseTypes: Object.keys(updatedPoseScores),
+        }
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      console.error("Error re-identifying poses:", error);
+      res.status(500).json({ error: "Failed to re-identify poses" });
     }
   });
 

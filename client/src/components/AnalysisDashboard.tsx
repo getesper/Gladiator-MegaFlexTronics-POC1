@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import type { VideoAnalysis } from "@shared/schema";
 import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 interface AnalysisDashboardProps {
@@ -37,11 +37,38 @@ export function AnalysisDashboard({ analysis, captureFrame, isFrameReady = false
   const [visionModel, setVisionModel] = useState("gpt-4o");
   const [coachingModel, setCoachingModel] = useState("claude-sonnet-4");
   const [aiResults, setAiResults] = useState<any>(null);
+  const [poseIdentModel, setPoseIdentModel] = useState("gpt-4o");
   const { toast } = useToast();
 
   const handleExport = () => {
     console.log("Exporting analysis report...");
   };
+
+  const runPoseIdentificationMutation = useMutation({
+    mutationFn: async () => {
+      const result = await apiRequest(`/api/analyses/${analysis.id}/identify-poses`, {
+        method: "POST",
+        body: JSON.stringify({ model: poseIdentModel }),
+      });
+      return result;
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Poses Re-Identified!",
+        description: `Found ${data.summary.uniquePoses} unique poses using VLM analysis`,
+      });
+      // Refresh the page to show updated poses
+      queryClient.invalidateQueries({ queryKey: ["/api/analyses"] });
+      window.location.reload();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Pose Identification Failed",
+        description: error.message || "Failed to identify poses",
+        variant: "destructive",
+      });
+    },
+  });
 
   const runAIAnalysisMutation = useMutation({
     mutationFn: async () => {
@@ -226,6 +253,32 @@ export function AnalysisDashboard({ analysis, captureFrame, isFrameReady = false
             </TabsContent>
 
             <TabsContent value="progress" className="mt-0 space-y-4 w-full max-w-full min-w-0">
+              <Card data-testid="card-pose-identification" className="w-full max-w-full min-w-0 border-primary/20 bg-primary/5">
+                <CardHeader className="pb-3">
+                  <h3 className="text-sm font-heading font-semibold">🎯 VLM Pose Identification</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Use Vision Language Models to accurately identify poses from video frames
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button
+                    onClick={() => runPoseIdentificationMutation.mutate()}
+                    disabled={runPoseIdentificationMutation.isPending}
+                    className="w-full"
+                    variant="default"
+                    data-testid="button-identify-poses"
+                  >
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    {runPoseIdentificationMutation.isPending 
+                      ? "Identifying Poses..." 
+                      : "Re-Identify Poses with VLM"}
+                  </Button>
+                  <p className="text-[10px] text-muted-foreground italic">
+                    ⚡ This replaces geometric pose detection with actual image analysis for accurate results
+                  </p>
+                </CardContent>
+              </Card>
+
               <AIModelSelector
                 visionModel={visionModel}
                 coachingModel={coachingModel}

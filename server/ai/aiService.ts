@@ -146,7 +146,7 @@ Provide specific, actionable observations in JSON format:
       }]
     });
 
-    const textBlock = response.content.find((block: any) => block.type === "text");
+    const textBlock = response.content.find((block: any) => block.type === "text") as any;
     return JSON.parse(textBlock?.text || "{}");
   }
 
@@ -221,9 +221,127 @@ Provide personalized coaching in JSON format:
       }]
     });
 
-    const textBlock = response.content.find((block: any) => block.type === "text");
+    const textBlock = response.content.find((block: any) => block.type === "text") as any;
     return JSON.parse(textBlock?.text || "{}");
   }
 
   throw new Error(`Unsupported coaching model: ${model}`);
+}
+
+export interface PoseIdentificationInput {
+  frameBase64: string;
+}
+
+export interface PoseIdentificationResult {
+  poseName: string;
+  confidence: number;
+  quality: number;
+  notes: string;
+}
+
+export async function identifyPoseFromFrame(
+  model: string,
+  input: PoseIdentificationInput
+): Promise<PoseIdentificationResult> {
+  const prompt = `You are an expert IFBB bodybuilding judge. Analyze this image and identify the specific bodybuilding pose being performed.
+
+MANDATORY BODYBUILDING POSES:
+1. frontDoubleBiceps - Front-facing with both arms raised, biceps flexed
+2. frontLatSpread - Front-facing with arms at sides/hips, spreading lats wide
+3. sideChest - Side view with chest expanded, one arm across body
+4. backDoubleBiceps - Back-facing with both arms raised, showing back muscles
+5. backLatSpread - Back-facing with arms spread, showing lat width
+6. sideTriceps - Side view showing triceps, arm extended behind
+7. absAndThighs - Front-facing with hands behind head or relaxed, showing abs
+8. mostMuscular - Front-facing with arms/fists clenched, flexing everything
+9. generalPose - Transition or relaxed pose, not a specific mandatory pose
+
+Respond with JSON only:
+{
+  "poseName": "exact name from list above",
+  "confidence": 0-100,
+  "quality": 0-100,
+  "notes": "brief explanation of what you see"
+}
+
+Quality criteria: muscle visibility, proper form, lighting, camera angle`;
+
+  if (model === "gpt-4o") {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      max_completion_tokens: 512,
+      response_format: { type: "json_object" },
+      messages: [{
+        role: "user",
+        content: [
+          { type: "text", text: prompt },
+          { 
+            type: "image_url", 
+            image_url: { url: `data:image/jpeg;base64,${input.frameBase64}` } 
+          }
+        ]
+      }]
+    });
+
+    return JSON.parse(response.choices[0].message.content || "{}");
+  }
+
+  if (model === "gemini-2.5-pro") {
+    const response = await gemini.models.generateContent({
+      model: "gemini-2.5-pro",
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "object",
+          properties: {
+            poseName: { type: "string" },
+            confidence: { type: "number" },
+            quality: { type: "number" },
+            notes: { type: "string" },
+          },
+          required: ["poseName", "confidence", "quality", "notes"],
+        },
+      },
+      contents: [
+        {
+          inlineData: {
+            data: input.frameBase64,
+            mimeType: "image/jpeg",
+          },
+        },
+        prompt,
+      ],
+    });
+
+    return JSON.parse(response.text || "{}");
+  }
+
+  if (model === "claude-sonnet-4") {
+    const response = await anthropic.messages.create({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 512,
+      messages: [{
+        role: "user",
+        content: [
+          {
+            type: "image",
+            source: {
+              type: "base64",
+              media_type: "image/jpeg",
+              data: input.frameBase64
+            }
+          },
+          {
+            type: "text",
+            text: prompt
+          }
+        ]
+      }]
+    });
+
+    const textBlock = response.content.find((block: any) => block.type === "text") as any;
+    return JSON.parse(textBlock?.text || "{}");
+  }
+
+  throw new Error(`Unsupported model for pose identification: ${model}`);
 }

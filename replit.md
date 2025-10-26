@@ -2,12 +2,23 @@
 
 ## Recent Changes (October 26, 2025)
 
-**Responsive Layout & Video Playback Fixes**
-- Fixed Competition Category section with responsive text sizing (text-xs/sm)
-- Fixed video file extension preservation during upload (.mov, .mp4, .webm, etc.)
-- Upload endpoint now accepts filename parameter to extract and preserve original extension
-- Added comprehensive error logging to video streaming endpoint
-- All sidebar content now properly sized for mobile devices
+**VLM-Powered Pose Detection (MAJOR UPGRADE)**
+- Replaced geometric heuristics with Vision Language Model analysis for accurate pose identification
+- Added `/api/analyses/:id/identify-poses` endpoint using GPT-4o/Gemini/Claude to identify poses from actual frame images
+- New "Re-Identify Poses with VLM" button in Progress tab for on-demand pose re-identification
+- VLM analyzes each frame snapshot and returns: pose name, confidence score, quality score, and notes
+- Fixes issue where pose names didn't match what was actually in the video frames
+- Architecture: MediaPipe captures frames → VLM identifies actual poses → Updates database with correct data
+
+**Responsive Layout Fixes - Complete**
+- Removed ALL hard-coded widths (lg:w-96 xl:w-[420px]) from sidebar
+- Layout now uses flexible 60/40 split (video: flex-[6], sidebar: flex-[4])
+- Fixed 2-column grids in Overview/Detailed tabs with proper width constraints
+- Zero horizontal overflow on all screen sizes
+
+**UI Improvements**
+- Fixed hard-coded "12 Poses Detected" badge - now shows real count from MediaPipe analysis
+- Added proper pluralization (1 Pose vs 14 Poses)
 
 ## Previous Changes (October 25, 2025)
 
