@@ -28,7 +28,7 @@ export function JudgingNotes({ notes: notesData }: JudgingNotesProps) {
   };
 
   return (
-    <Card data-testid="card-judging-notes">
+    <Card data-testid="card-judging-notes" className="w-full max-w-full min-w-0">
       <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
         <h3 className="text-sm font-heading font-semibold text-muted-foreground">
           Judge's Notes

@@ -29,7 +29,7 @@ export function MuscleGroupCard({ muscleGroups: muscleGroupsData }: MuscleGroupC
       ];
 
   return (
-    <Card data-testid="card-muscle-groups">
+    <Card data-testid="card-muscle-groups" className="w-full max-w-full min-w-0">
       <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
         <h3 className="text-sm font-heading font-semibold text-muted-foreground">
           Muscularity Development

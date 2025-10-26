@@ -15,7 +15,7 @@ export function SymmetryCard({ measurements }: SymmetryCardProps) {
   const difference = Math.abs(leftSide - rightSide);
 
   return (
-    <Card data-testid="card-symmetry">
+    <Card data-testid="card-symmetry" className="w-full max-w-full min-w-0">
       <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
         <h3 className="text-sm font-heading font-semibold text-muted-foreground">
           Symmetry Analysis

@@ -57,7 +57,7 @@ export function PoseSnapshots({ detectedPoses }: PoseSnapshotsProps) {
 
   if (posesWithSnapshots.length === 0) {
     return (
-      <Card data-testid="card-pose-snapshots">
+      <Card data-testid="card-pose-snapshots" className="w-full max-w-full min-w-0">
         <CardHeader>
           <CardTitle className="text-sm sm:text-base flex items-center gap-2">
             <Maximize2 className="h-4 w-4" />
@@ -78,7 +78,7 @@ export function PoseSnapshots({ detectedPoses }: PoseSnapshotsProps) {
 
   return (
     <>
-      <Card data-testid="card-pose-snapshots">
+      <Card data-testid="card-pose-snapshots" className="w-full max-w-full min-w-0">
         <CardHeader>
           <CardTitle className="text-sm sm:text-base flex items-center gap-2">
             <Maximize2 className="h-4 w-4" />

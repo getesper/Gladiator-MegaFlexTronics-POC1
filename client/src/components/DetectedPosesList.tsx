@@ -34,7 +34,7 @@ export function DetectedPosesList({ poses }: DetectedPosesListProps) {
   };
 
   return (
-    <Card data-testid="card-detected-poses" className="max-w-full">
+    <Card data-testid="card-detected-poses" className="w-full max-w-full min-w-0">
       <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 space-y-0">
         <h3 className="text-xs sm:text-sm font-heading font-semibold text-muted-foreground truncate">
           Detected Poses ({poses.length})

@@ -16,7 +16,7 @@ export function AIModelSelector({
   onCoachingModelChange,
 }: AIModelSelectorProps) {
   return (
-    <Card data-testid="card-ai-model-selector">
+    <Card data-testid="card-ai-model-selector" className="w-full max-w-full min-w-0">
       <CardHeader className="flex flex-row items-center justify-between gap-2 pb-3 space-y-0">
         <h3 className="text-sm font-heading font-semibold text-muted-foreground">
           AI Analysis Models

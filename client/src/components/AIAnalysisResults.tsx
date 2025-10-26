@@ -13,9 +13,9 @@ export function AIAnalysisResults({ results }: AIAnalysisResultsProps) {
   const { vision, coaching } = results;
 
   return (
-    <div className="space-y-4" data-testid="ai-analysis-results">
+    <div className="space-y-4 w-full max-w-full min-w-0" data-testid="ai-analysis-results">
       {coaching && (
-        <Card>
+        <Card className="w-full max-w-full min-w-0">
           <CardHeader className="flex flex-row items-center justify-between gap-2 pb-3 space-y-0">
             <h3 className="text-sm font-heading font-semibold">AI Coaching Feedback</h3>
             <div className="rounded-md bg-primary/10 p-2">
@@ -85,7 +85,7 @@ export function AIAnalysisResults({ results }: AIAnalysisResultsProps) {
       )}
 
       {vision && (
-        <Card>
+        <Card className="w-full max-w-full min-w-0">
           <CardHeader className="flex flex-row items-center justify-between gap-2 pb-3 space-y-0">
             <h3 className="text-sm font-heading font-semibold">Vision Analysis</h3>
             <Badge variant="secondary" className="text-[10px]">Beta</Badge>

@@ -18,7 +18,7 @@ export function ConditioningCard({ measurements }: ConditioningCardProps) {
   ];
 
   return (
-    <Card data-testid="card-conditioning">
+    <Card data-testid="card-conditioning" className="w-full max-w-full min-w-0">
       <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
         <h3 className="text-sm font-heading font-semibold text-muted-foreground">
           Conditioning Analysis

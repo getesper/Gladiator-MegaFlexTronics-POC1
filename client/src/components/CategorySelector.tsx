@@ -17,7 +17,7 @@ export function CategorySelector({ selectedCategory, onCategoryChange }: Categor
   ];
 
   return (
-    <Card data-testid="card-category-selector">
+    <Card data-testid="card-category-selector" className="w-full max-w-full min-w-0">
       <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
         <h3 className="text-xs sm:text-sm font-heading font-semibold text-muted-foreground">
           Competition Category
