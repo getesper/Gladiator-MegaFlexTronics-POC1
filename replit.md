@@ -23,9 +23,12 @@
 - Button gating: "Analyze with AI" disabled until video metadata loads, with "Loading video..." status
 - Complete end-to-end flow validated and architect-approved
 
-**Fully Responsive Dynamic Layout**
-- Fixed sidebar width: 384px (lg), 420px (xl), full-width on mobile
+**Fully Responsive Dynamic Layout (October 26, 2025)**
+- Removed ALL hard-coded widths - layout now uses flexible proportions
+- Desktop: 60/40 split (video: `flex-[6]`, sidebar: `flex-[4]`)
+- Mobile: Full-width stacking
 - Zero horizontal overflow at all viewport sizes
+- All components properly constrained with `min-w-0` and `max-w-full`
 - Dynamic viewport height (`h-dvh`) for mobile browser compatibility
 
 **Performance Optimizations**
