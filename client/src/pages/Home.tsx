@@ -182,6 +182,7 @@ export default function Home() {
                 (currentAnalysis.detectedPoses as any[])?.length || 
                 Object.keys(currentAnalysis.poseScores as Record<string, number>).length
               }
+              detectedPoses={currentAnalysis.detectedPoses as any[] || []}
             />
           </div>
           

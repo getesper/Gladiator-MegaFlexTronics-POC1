@@ -243,28 +243,32 @@ export async function identifyPoseFromFrame(
   model: string,
   input: PoseIdentificationInput
 ): Promise<PoseIdentificationResult> {
-  const prompt = `You are an expert IFBB bodybuilding judge. Analyze this image and identify the specific bodybuilding pose being performed.
+  const prompt = `You are an expert IFBB Pro League judge. Analyze this frame and identify which of the 8 MANDATORY BODYBUILDING POSES is being performed.
 
-MANDATORY BODYBUILDING POSES:
-1. frontDoubleBiceps - Front-facing with both arms raised, biceps flexed
-2. frontLatSpread - Front-facing with arms at sides/hips, spreading lats wide
-3. sideChest - Side view with chest expanded, one arm across body
-4. backDoubleBiceps - Back-facing with both arms raised, showing back muscles
-5. backLatSpread - Back-facing with arms spread, showing lat width
-6. sideTriceps - Side view showing triceps, arm extended behind
-7. absAndThighs - Front-facing with hands behind head or relaxed, showing abs
-8. mostMuscular - Front-facing with arms/fists clenched, flexing everything
-9. generalPose - Transition or relaxed pose, not a specific mandatory pose
+THE 8 MANDATORY IFBB POSES:
+1. **frontDoubleBiceps** - Front-facing, arms raised to shoulder height, elbows bent ~90°, fists clenched. Shows: biceps, chest, front delts, quads
+2. **frontLatSpread** - Front-facing, hands on waist or behind back, elbows pushed forward/outward. Shows: lat width, V-taper, shoulder width
+3. **sideChest** - Side view, front arm bent across body, rear leg bent touching front calf. Shows: chest thickness, arm size, leg development
+4. **backDoubleBiceps** - Back-facing, arms raised like front double biceps, one leg back and flexed. Shows: rear delts, traps, hamstrings, glutes, calves
+5. **backLatSpread** - Back-facing, arms wide spreading lats, hands on waist. Shows: back width, lat spread, thickness
+6. **sideTriceps** - Side view, near arm extended behind showing triceps, far hand grips near wrist. Shows: triceps horseshoe, chest, shoulder
+7. **absAndThighs** - Front-facing, hands behind head or overhead, one leg forward. Shows: abs, obliques, serratus, quad separation
+8. **mostMuscular** - Front-facing, dramatic contraction (crab/hands clasped/hands on hips). Shows: maximum muscle density, traps, chest
+9. **generalPose** - Transition/relaxed pose between mandatories
+
+JUDGING CRITERIA (score quality 0-100):
+- Muscularity: size, fullness, density
+- Symmetry: balanced proportions
+- Conditioning: ~5% body fat, muscle separation, striations, vascularity, "dry" look
+- Presentation: pose control, execution
 
 Respond with JSON only:
 {
-  "poseName": "exact name from list above",
+  "poseName": "exact camelCase name from list above",
   "confidence": 0-100,
   "quality": 0-100,
-  "notes": "brief explanation of what you see"
-}
-
-Quality criteria: muscle visibility, proper form, lighting, camera angle`;
+  "notes": "2-3 sentences on execution, strengths, and improvements"
+}`;
 
   if (model === "gpt-4o") {
     const response = await openai.chat.completions.create({

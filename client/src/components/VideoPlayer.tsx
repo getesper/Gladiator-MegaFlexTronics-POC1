@@ -4,13 +4,21 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 
+interface DetectedPose {
+  poseName: string;
+  timestamp: number;
+  score: number;
+  confidence?: number;
+}
+
 interface VideoPlayerProps {
   videoUrl: string;
   onFrameCaptureReady?: (captureFrame: () => string | null) => void;
   posesDetected?: number;
+  detectedPoses?: DetectedPose[];
 }
 
-export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected }: VideoPlayerProps) {
+export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, detectedPoses = [] }: VideoPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -120,14 +128,45 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected }: Vi
           <span className="text-xs text-white font-mono min-w-[40px]">
             {formatTime(currentTime)}
           </span>
-          <Slider
-            value={[currentTime]}
-            max={duration || 100}
-            step={0.1}
-            onValueChange={handleSeek}
-            className="flex-1"
-            data-testid="slider-timeline"
-          />
+          <div className="flex-1 relative">
+            <Slider
+              value={[currentTime]}
+              max={duration || 100}
+              step={0.1}
+              onValueChange={handleSeek}
+              className="relative z-10"
+              data-testid="slider-timeline"
+            />
+            {/* Timeline Pose Markers */}
+            {duration > 0 && detectedPoses.map((pose, index) => {
+              const position = (pose.timestamp / duration) * 100;
+              return (
+                <button
+                  key={index}
+                  onClick={() => {
+                    const video = videoRef.current;
+                    if (video) {
+                      video.currentTime = pose.timestamp;
+                      setCurrentTime(pose.timestamp);
+                    }
+                  }}
+                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-20 group"
+                  style={{ left: `${position}%` }}
+                  data-testid={`marker-pose-${index}`}
+                  title={`${pose.poseName} at ${formatTime(pose.timestamp)} (${pose.score}%)`}
+                >
+                  <div className="relative">
+                    {/* Marker dot */}
+                    <div className="w-3 h-3 rounded-full bg-primary border-2 border-white shadow-lg group-hover:scale-125 transition-transform" />
+                    {/* Hover tooltip */}
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black/90 text-white text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
+                      {pose.poseName}<br/>{formatTime(pose.timestamp)}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
           <span className="text-xs text-white font-mono min-w-[40px]">
             {formatTime(duration)}
           </span>
