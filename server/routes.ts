@@ -207,7 +207,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: error.errors });
       }
       console.error("Error in vision analysis:", error);
-      res.status(500).json({ error: "Failed to run vision analysis" });
+      const errorMessage = error instanceof Error ? error.message : "Failed to run vision analysis";
+      res.status(500).json({ error: errorMessage });
     }
   });
 
@@ -296,7 +297,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: error.errors });
       }
       console.error("Error re-identifying poses:", error);
-      res.status(500).json({ error: "Failed to re-identify poses" });
+      const errorMessage = error instanceof Error ? error.message : "Failed to re-identify poses";
+      res.status(500).json({ error: errorMessage });
     }
   });
 
@@ -340,7 +342,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: error.errors });
       }
       console.error("Error generating coaching:", error);
-      res.status(500).json({ error: "Failed to generate coaching feedback" });
+      const errorMessage = error instanceof Error ? error.message : "Failed to generate coaching feedback";
+      res.status(500).json({ error: errorMessage });
     }
   });
 
@@ -379,7 +382,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: error.errors });
       }
       console.error("Error in muscle analysis:", error);
-      res.status(500).json({ error: "Failed to run muscle analysis" });
+      const errorMessage = error instanceof Error ? error.message : "Failed to run muscle analysis";
+      res.status(500).json({ error: errorMessage });
     }
   });
 

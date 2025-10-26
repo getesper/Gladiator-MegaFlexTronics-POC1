@@ -54,6 +54,14 @@ export async function analyzeVision(
   model: string,
   input: VisionAnalysisInput
 ): Promise<VisionAnalysisResult> {
+  // Check API key availability
+  if (model === "gemini-2.5-pro" && !process.env.GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY is required for Gemini 2.5 Pro. Please provide your API key in Secrets.");
+  }
+  if (model === "claude-sonnet-4" && !process.env.ANTHROPIC_API_KEY) {
+    throw new Error("ANTHROPIC_API_KEY is required for Claude Sonnet 4. Please provide your API key in Secrets.");
+  }
+
   const prompt = `Analyze this bodybuilding pose image and provide detailed feedback on:
 1. Muscle Definition: Assess muscle separation, striations, and definition quality
 2. Vascularity: Evaluate visible vascularity and conditioning
@@ -157,6 +165,14 @@ export async function generateCoaching(
   model: string,
   input: CoachingInput
 ): Promise<CoachingResult> {
+  // Check API key availability
+  if (model === "gemini-2.5-flash" && !process.env.GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY is required for Gemini 2.5 Flash. Please provide your API key in Secrets.");
+  }
+  if (model === "claude-sonnet-4" && !process.env.ANTHROPIC_API_KEY) {
+    throw new Error("ANTHROPIC_API_KEY is required for Claude Sonnet 4. Please provide your API key in Secrets.");
+  }
+
   const prompt = `As an expert bodybuilding coach, analyze this competitor's performance:
 
 Scores (out of 100):
@@ -243,6 +259,14 @@ export async function identifyPoseFromFrame(
   model: string,
   input: PoseIdentificationInput
 ): Promise<PoseIdentificationResult> {
+  // Check API key availability
+  if (model === "gemini-2.5-pro" && !process.env.GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY is required for Gemini 2.5 Pro. Please provide your API key in Secrets.");
+  }
+  if (model === "claude-sonnet-4" && !process.env.ANTHROPIC_API_KEY) {
+    throw new Error("ANTHROPIC_API_KEY is required for Claude Sonnet 4. Please provide your API key in Secrets.");
+  }
+
   const prompt = `You are an expert IFBB Pro League judge. Analyze this frame and identify which of the 8 MANDATORY BODYBUILDING POSES is being performed.
 
 THE 8 MANDATORY IFBB POSES:
@@ -383,6 +407,14 @@ export async function analyzeMuscleGroups(
   model: string,
   input: MuscleAnalysisInput
 ): Promise<MuscleAnalysisResult> {
+  // Check API key availability
+  if (model === "gemini-2.5-pro" && !process.env.GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY is required for Gemini 2.5 Pro. Please provide your API key in Secrets.");
+  }
+  if (model === "claude-sonnet-4" && !process.env.ANTHROPIC_API_KEY) {
+    throw new Error("ANTHROPIC_API_KEY is required for Claude Sonnet 4. Please provide your API key in Secrets.");
+  }
+
   const prompt = `You are an expert IFBB Pro League judge specializing in detailed muscle group assessment. Analyze this bodybuilding image and evaluate EACH individual muscle group based on professional bodybuilding standards.
 
 For each muscle group, provide scores (0-100) for:
