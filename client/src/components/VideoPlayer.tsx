@@ -7,9 +7,10 @@ import { Badge } from "@/components/ui/badge";
 interface VideoPlayerProps {
   videoUrl: string;
   onFrameCaptureReady?: (captureFrame: () => string | null) => void;
+  posesDetected?: number;
 }
 
-export function VideoPlayer({ videoUrl, onFrameCaptureReady }: VideoPlayerProps) {
+export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected }: VideoPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -197,11 +198,13 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady }: VideoPlayerProps)
         </div>
       </div>
       
-      <div className="absolute top-4 left-4 flex gap-2">
-        <Badge variant="default" className="bg-primary" data-testid="badge-poses-detected">
-          12 Poses Detected
-        </Badge>
-      </div>
+      {posesDetected !== undefined && (
+        <div className="absolute top-4 left-4 flex gap-2">
+          <Badge variant="default" className="bg-primary" data-testid="badge-poses-detected">
+            {posesDetected} Pose{posesDetected !== 1 ? 's' : ''} Detected
+          </Badge>
+        </div>
+      )}
     </div>
   );
 }

@@ -178,6 +178,10 @@ export default function Home() {
             <VideoPlayer 
               videoUrl={currentAnalysis.videoUrl}
               onFrameCaptureReady={handleFrameCaptureReady}
+              posesDetected={
+                (currentAnalysis.detectedPoses as any[])?.length || 
+                Object.keys(currentAnalysis.poseScores as Record<string, number>).length
+              }
             />
           </div>
           
