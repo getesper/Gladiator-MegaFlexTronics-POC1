@@ -41,10 +41,10 @@ export function AIModelSelector({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="gpt-4o">GPT-4o (OpenAI) - Fast & Accurate</SelectItem>
-              <SelectItem value="gemini-2.5-pro">Gemini 2.5 Pro - Native Video</SelectItem>
-              <SelectItem value="claude-sonnet-4">Claude Sonnet 4 - Best Reasoning</SelectItem>
-              <SelectItem value="none">No Vision Analysis</SelectItem>
+              <SelectItem value="gpt-4o">GPT-4o - Fast</SelectItem>
+              <SelectItem value="gemini-2.5-pro">Gemini 2.5 Pro</SelectItem>
+              <SelectItem value="claude-sonnet-4">Claude Sonnet 4</SelectItem>
+              <SelectItem value="none">None</SelectItem>
             </SelectContent>
           </Select>
           <p className="text-[10px] text-muted-foreground">
@@ -67,10 +67,10 @@ export function AIModelSelector({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="gpt-4o">GPT-4o (OpenAI) - Balanced</SelectItem>
-              <SelectItem value="gemini-2.5-flash">Gemini 2.5 Flash - Fast</SelectItem>
-              <SelectItem value="claude-sonnet-4">Claude Sonnet 4 - Detailed</SelectItem>
-              <SelectItem value="none">No Coaching Feedback</SelectItem>
+              <SelectItem value="gpt-4o">GPT-4o</SelectItem>
+              <SelectItem value="gemini-2.5-flash">Gemini 2.5 Flash</SelectItem>
+              <SelectItem value="claude-sonnet-4">Claude Sonnet 4</SelectItem>
+              <SelectItem value="none">None</SelectItem>
             </SelectContent>
           </Select>
           <p className="text-[10px] text-muted-foreground">

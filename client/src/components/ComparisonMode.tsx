@@ -35,13 +35,13 @@ export function ComparisonMode() {
           const change = getChange(item.current, item.previous);
           return (
             <div key={item.metric} className="space-y-2">
-              <div className="flex justify-between items-center text-xs">
-                <span className="font-body font-semibold">{item.metric}</span>
-                <div className="flex items-center gap-2">
-                  <span className={`font-heading font-bold ${change.color}`}>
+              <div className="flex justify-between items-center gap-2 text-xs">
+                <span className="font-body font-semibold truncate flex-1 min-w-0">{item.metric}</span>
+                <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                  <span className={`font-heading font-bold text-[10px] sm:text-xs ${change.color}`}>
                     {change.isPositive ? "+" : "-"}{change.value}
                   </span>
-                  <span className="text-muted-foreground">vs. previous</span>
+                  <span className="text-muted-foreground text-[9px] sm:text-xs hidden sm:inline">vs. previous</span>
                 </div>
               </div>
               <div className="relative">
@@ -52,10 +52,10 @@ export function ComparisonMode() {
                   title={`Ideal: ${item.ideal}`}
                 />
               </div>
-              <div className="flex justify-between text-[10px] text-muted-foreground">
-                <span>Current: {item.current}</span>
-                <span>Previous: {item.previous}</span>
-                <span>Ideal: {item.ideal}</span>
+              <div className="flex justify-between gap-1 text-[9px] sm:text-[10px] text-muted-foreground">
+                <span className="truncate">Now: {item.current}</span>
+                <span className="truncate">Prev: {item.previous}</span>
+                <span className="truncate">Goal: {item.ideal}</span>
               </div>
             </div>
           );

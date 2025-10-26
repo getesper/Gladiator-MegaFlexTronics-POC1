@@ -132,9 +132,9 @@ export function AnalysisDashboard({ analysis, captureFrame, isFrameReady = false
           </TabsList>
         </div>
 
-        <ScrollArea className="flex-1 min-h-0 w-full">
-          <div className="p-3 sm:p-4 pt-2 space-y-4 w-full">
-            <TabsContent value="overview" className="mt-0 space-y-4 max-w-full">
+        <ScrollArea className="flex-1 min-h-0 w-full max-w-full overflow-x-hidden">
+          <div className="p-3 sm:p-4 pt-2 space-y-4 w-full max-w-full min-w-0">
+            <TabsContent value="overview" className="mt-0 space-y-4 w-full max-w-full min-w-0">
               <CategorySelector
                 selectedCategory={selectedCategory}
                 onCategoryChange={setSelectedCategory}
@@ -175,7 +175,7 @@ export function AnalysisDashboard({ analysis, captureFrame, isFrameReady = false
               <FrameTimeline />
             </TabsContent>
 
-            <TabsContent value="detailed" className="mt-0 space-y-4 max-w-full">
+            <TabsContent value="detailed" className="mt-0 space-y-4 w-full max-w-full min-w-0">
               <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <MetricCard
                   title="V-Taper Ratio"
@@ -218,14 +218,14 @@ export function AnalysisDashboard({ analysis, captureFrame, isFrameReady = false
               </div>
             </TabsContent>
 
-            <TabsContent value="corrections" className="mt-0 space-y-4 max-w-full">
+            <TabsContent value="corrections" className="mt-0 space-y-4 w-full max-w-full min-w-0">
               <PoseCorrections />
               <ConditioningCard measurements={analysis.measurements as any} />
               <MuscleGroupCard muscleGroups={analysis.muscleGroups as Record<string, string>} />
               <SymmetryCard measurements={analysis.measurements as any} />
             </TabsContent>
 
-            <TabsContent value="progress" className="mt-0 space-y-4 max-w-full">
+            <TabsContent value="progress" className="mt-0 space-y-4 w-full max-w-full min-w-0">
               <AIModelSelector
                 visionModel={visionModel}
                 coachingModel={coachingModel}
