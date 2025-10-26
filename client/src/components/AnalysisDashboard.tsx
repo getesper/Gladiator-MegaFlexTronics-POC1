@@ -14,6 +14,7 @@ import { JudgingNotes } from "./JudgingNotes";
 import { FrameTimeline } from "./FrameTimeline";
 import { RecommendationCard } from "./RecommendationCard";
 import { DetectedPosesList } from "./DetectedPosesList";
+import { PoseSnapshots } from "./PoseSnapshots";
 import { AIModelSelector } from "./AIModelSelector";
 import { AIAnalysisResults } from "./AIAnalysisResults";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -155,7 +156,10 @@ export function AnalysisDashboard({ analysis, captureFrame, isFrameReady = false
               </div>
 
               {analysis.detectedPoses && (analysis.detectedPoses as any[]).length > 0 ? (
-                <DetectedPosesList poses={analysis.detectedPoses as any[]} />
+                <>
+                  <PoseSnapshots detectedPoses={analysis.detectedPoses as any[]} />
+                  <DetectedPosesList poses={analysis.detectedPoses as any[]} />
+                </>
               ) : null}
 
               <FormScoreCard 
