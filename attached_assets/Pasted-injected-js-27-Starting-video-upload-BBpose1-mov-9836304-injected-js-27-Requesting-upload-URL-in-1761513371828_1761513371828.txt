@@ -1,0 +1,220 @@
+injected.js:27 Starting video upload: BBpose1.mov 9836304
+injected.js:27 Requesting upload URL...
+injected.js:27 Got upload URL: https://storage.googleapis.com/replit-objstore-7faedee1-0fde-4bef-8d94-6b5e2b0bad7c/.private/videos/7fa98df6-0a70-46a9-b132-d83168fa606c.mov?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=heimdall-production%40replit-user-deployments.iam.gserviceaccount.com%2F20251026%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20251026T211556Z&X-Goog-Expires=899&X-Goog-Signature=4705a10d7b3c623f82909f6873a4ae90d86ec75645ef5c6aa52aa118cd73fce4a9d9ea2bf955693912569f871f393ba21f5580a10aaf7d155acb3ca98c404aa147a51fb9b1283da4d0b51ac9997824c01ec4fc0c5c68cd093cd828308b261ab46a0a2b2a374342ddd91ca0323389dad326ae4ef7f9d256b0b8c1b5610811f118c41036227f921c4f9e3c5503b87e9cc57415b7d69e925e907245b9330785a191ed53526bb54a7af87374de482cc692f5fac2e75e69fb2ce95186352eb4affad1f3f5c32280c817bb163ec4dd53b3946bb5a1b22d05e2d86e462553085aa7c12fd096cd83a7334a892772b0d1f68aeae9482ea9dfadb00d811d3ef3e37202e63c&X-Goog-SignedHeaders=host
+injected.js:27 Uploading to object storage...
+injected.js:27 Upload progress: 11%
+injected.js:27 Upload progress: 60%
+injected.js:27 Upload progress: 100%
+injected.js:27 Upload successful
+injected.js:27 Getting video duration...
+injected.js:27 Video duration: 14
+injected.js:27 Analyzing video with MediaPipe...
+injected.js:27 Analyzing 14 frames from 14s video...
+injected.js:27 I0000 00:00:1761513357.669000       1 gl_context_webgl.cc:151] Successfully created a WebGL context with major version 3 and handle 3
+(anonymous) @ injected.js:27
+put_char @ pose_solution_simd_wasm_bin.js:9
+write @ pose_solution_simd_wasm_bin.js:9
+write @ pose_solution_simd_wasm_bin.js:9
+doWritev @ pose_solution_simd_wasm_bin.js:9
+_fd_write @ pose_solution_simd_wasm_bin.js:9
+$func8240 @ pose_solution_simd_wasm_bin.wasm:0x51510e
+$func8250 @ pose_solution_simd_wasm_bin.wasm:0x51587f
+$func8251 @ pose_solution_simd_wasm_bin.wasm:0x51592a
+$func7869 @ pose_solution_simd_wasm_bin.wasm:0x4e9bc2
+$func7868 @ pose_solution_simd_wasm_bin.wasm:0x4e9ba1
+$func7866 @ pose_solution_simd_wasm_bin.wasm:0x4e984d
+$func7847 @ pose_solution_simd_wasm_bin.wasm:0x4e8464
+$func7846 @ pose_solution_simd_wasm_bin.wasm:0x4e76e4
+$func7070 @ pose_solution_simd_wasm_bin.wasm:0x4a68f1
+$func6557 @ pose_solution_simd_wasm_bin.wasm:0x469140
+$func6352 @ pose_solution_simd_wasm_bin.wasm:0x4544e7
+$func251 @ pose_solution_simd_wasm_bin.wasm:0x1d898
+$func221 @ pose_solution_simd_wasm_bin.wasm:0x19049
+(anonymous) @ pose_solution_simd_wasm_bin.js:9
+(anonymous) @ @mediapipe_pose.js?v=436c6e9a:2123
+ua @ @mediapipe_pose.js?v=436c6e9a:193
+next @ @mediapipe_pose.js?v=436c6e9a:210
+b @ @mediapipe_pose.js?v=436c6e9a:227
+Promise.then
+g @ @mediapipe_pose.js?v=436c6e9a:234
+Promise.then
+g @ @mediapipe_pose.js?v=436c6e9a:234
+(anonymous) @ @mediapipe_pose.js?v=436c6e9a:236
+wa @ @mediapipe_pose.js?v=436c6e9a:232
+E @ @mediapipe_pose.js?v=436c6e9a:240
+x.send @ @mediapipe_pose.js?v=436c6e9a:2030
+(anonymous) @ @mediapipe_pose.js?v=436c6e9a:2303
+ua @ @mediapipe_pose.js?v=436c6e9a:193
+next @ @mediapipe_pose.js?v=436c6e9a:210
+(anonymous) @ @mediapipe_pose.js?v=436c6e9a:236
+wa @ @mediapipe_pose.js?v=436c6e9a:232
+E @ @mediapipe_pose.js?v=436c6e9a:240
+x.send @ @mediapipe_pose.js?v=436c6e9a:2302
+(anonymous) @ poseAnalyzer.ts:161
+detectPoseInCurrentFrame @ poseAnalyzer.ts:157
+analyzeVideo @ poseAnalyzer.ts:105
+await in analyzeVideo
+handleVideoSelect @ Home.tsx:109
+await in handleVideoSelect
+(anonymous) @ VideoUploadZone.tsx:67
+setTimeout
+(anonymous) @ VideoUploadZone.tsx:65
+basicStateReducer @ chunk-WERSD76P.js?v=436c6e9a:11703
+updateReducer @ chunk-WERSD76P.js?v=436c6e9a:11794
+updateState @ chunk-WERSD76P.js?v=436c6e9a:12021
+useState @ chunk-WERSD76P.js?v=436c6e9a:12753
+useState @ chunk-3TFVT2CW.js?v=436c6e9a:1066
+VideoUploadZone @ VideoUploadZone.tsx:13
+renderWithHooks @ chunk-WERSD76P.js?v=436c6e9a:11548
+updateFunctionComponent @ chunk-WERSD76P.js?v=436c6e9a:14582
+beginWork @ chunk-WERSD76P.js?v=436c6e9a:15924
+beginWork$1 @ chunk-WERSD76P.js?v=436c6e9a:19753
+performUnitOfWork @ chunk-WERSD76P.js?v=436c6e9a:19198
+workLoopSync @ chunk-WERSD76P.js?v=436c6e9a:19137
+renderRootSync @ chunk-WERSD76P.js?v=436c6e9a:19116
+performConcurrentWorkOnRoot @ chunk-WERSD76P.js?v=436c6e9a:18678
+workLoop @ chunk-WERSD76P.js?v=436c6e9a:197
+flushWork @ chunk-WERSD76P.js?v=436c6e9a:176
+performWorkUntilDeadline @ chunk-WERSD76P.js?v=436c6e9a:384
+injected.js:27 I0000 00:00:1761513357.673000       1 gl_context.cc:359] GL version: 3.0 (OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium)))
+(anonymous) @ injected.js:27
+put_char @ pose_solution_simd_wasm_bin.js:9
+write @ pose_solution_simd_wasm_bin.js:9
+write @ pose_solution_simd_wasm_bin.js:9
+doWritev @ pose_solution_simd_wasm_bin.js:9
+_fd_write @ pose_solution_simd_wasm_bin.js:9
+$func8240 @ pose_solution_simd_wasm_bin.wasm:0x51510e
+$func8250 @ pose_solution_simd_wasm_bin.wasm:0x51587f
+$func8251 @ pose_solution_simd_wasm_bin.wasm:0x51592a
+$func7869 @ pose_solution_simd_wasm_bin.wasm:0x4e9bc2
+$func7868 @ pose_solution_simd_wasm_bin.wasm:0x4e9ba1
+$func7866 @ pose_solution_simd_wasm_bin.wasm:0x4e984d
+$func7847 @ pose_solution_simd_wasm_bin.wasm:0x4e8464
+$func7846 @ pose_solution_simd_wasm_bin.wasm:0x4e76e4
+$func7015 @ pose_solution_simd_wasm_bin.wasm:0x4a4c16
+$func6943 @ pose_solution_simd_wasm_bin.wasm:0x4a2623
+$func6942 @ pose_solution_simd_wasm_bin.wasm:0x4a24f1
+$func7070 @ pose_solution_simd_wasm_bin.wasm:0x4a69a4
+$func6557 @ pose_solution_simd_wasm_bin.wasm:0x469140
+$func6352 @ pose_solution_simd_wasm_bin.wasm:0x4544e7
+$func251 @ pose_solution_simd_wasm_bin.wasm:0x1d898
+$func221 @ pose_solution_simd_wasm_bin.wasm:0x19049
+(anonymous) @ pose_solution_simd_wasm_bin.js:9
+(anonymous) @ @mediapipe_pose.js?v=436c6e9a:2123
+ua @ @mediapipe_pose.js?v=436c6e9a:193
+next @ @mediapipe_pose.js?v=436c6e9a:210
+b @ @mediapipe_pose.js?v=436c6e9a:227
+Promise.then
+g @ @mediapipe_pose.js?v=436c6e9a:234
+Promise.then
+g @ @mediapipe_pose.js?v=436c6e9a:234
+(anonymous) @ @mediapipe_pose.js?v=436c6e9a:236
+wa @ @mediapipe_pose.js?v=436c6e9a:232
+E @ @mediapipe_pose.js?v=436c6e9a:240
+x.send @ @mediapipe_pose.js?v=436c6e9a:2030
+(anonymous) @ @mediapipe_pose.js?v=436c6e9a:2303
+ua @ @mediapipe_pose.js?v=436c6e9a:193
+next @ @mediapipe_pose.js?v=436c6e9a:210
+(anonymous) @ @mediapipe_pose.js?v=436c6e9a:236
+wa @ @mediapipe_pose.js?v=436c6e9a:232
+E @ @mediapipe_pose.js?v=436c6e9a:240
+x.send @ @mediapipe_pose.js?v=436c6e9a:2302
+(anonymous) @ poseAnalyzer.ts:161
+detectPoseInCurrentFrame @ poseAnalyzer.ts:157
+analyzeVideo @ poseAnalyzer.ts:105
+await in analyzeVideo
+handleVideoSelect @ Home.tsx:109
+await in handleVideoSelect
+(anonymous) @ VideoUploadZone.tsx:67
+setTimeout
+(anonymous) @ VideoUploadZone.tsx:65
+basicStateReducer @ chunk-WERSD76P.js?v=436c6e9a:11703
+updateReducer @ chunk-WERSD76P.js?v=436c6e9a:11794
+updateState @ chunk-WERSD76P.js?v=436c6e9a:12021
+useState @ chunk-WERSD76P.js?v=436c6e9a:12753
+useState @ chunk-3TFVT2CW.js?v=436c6e9a:1066
+VideoUploadZone @ VideoUploadZone.tsx:13
+renderWithHooks @ chunk-WERSD76P.js?v=436c6e9a:11548
+updateFunctionComponent @ chunk-WERSD76P.js?v=436c6e9a:14582
+beginWork @ chunk-WERSD76P.js?v=436c6e9a:15924
+beginWork$1 @ chunk-WERSD76P.js?v=436c6e9a:19753
+performUnitOfWork @ chunk-WERSD76P.js?v=436c6e9a:19198
+workLoopSync @ chunk-WERSD76P.js?v=436c6e9a:19137
+renderRootSync @ chunk-WERSD76P.js?v=436c6e9a:19116
+performConcurrentWorkOnRoot @ chunk-WERSD76P.js?v=436c6e9a:18678
+workLoop @ chunk-WERSD76P.js?v=436c6e9a:197
+flushWork @ chunk-WERSD76P.js?v=436c6e9a:176
+performWorkUntilDeadline @ chunk-WERSD76P.js?v=436c6e9a:384
+injected.js:27 W0000 00:00:1761513357.674000       1 gl_context.cc:1000] OpenGL error checking is disabled
+(anonymous) @ injected.js:27
+put_char @ pose_solution_simd_wasm_bin.js:9
+write @ pose_solution_simd_wasm_bin.js:9
+write @ pose_solution_simd_wasm_bin.js:9
+doWritev @ pose_solution_simd_wasm_bin.js:9
+_fd_write @ pose_solution_simd_wasm_bin.js:9
+$func8240 @ pose_solution_simd_wasm_bin.wasm:0x51510e
+$func8250 @ pose_solution_simd_wasm_bin.wasm:0x51587f
+$func8251 @ pose_solution_simd_wasm_bin.wasm:0x51592a
+$func7869 @ pose_solution_simd_wasm_bin.wasm:0x4e9bc2
+$func7868 @ pose_solution_simd_wasm_bin.wasm:0x4e9ba1
+$func7866 @ pose_solution_simd_wasm_bin.wasm:0x4e984d
+$func7847 @ pose_solution_simd_wasm_bin.wasm:0x4e8464
+$func7846 @ pose_solution_simd_wasm_bin.wasm:0x4e76e4
+$func6943 @ pose_solution_simd_wasm_bin.wasm:0x4a2687
+$func6942 @ pose_solution_simd_wasm_bin.wasm:0x4a24f1
+$func7070 @ pose_solution_simd_wasm_bin.wasm:0x4a69a4
+$func6557 @ pose_solution_simd_wasm_bin.wasm:0x469140
+$func6352 @ pose_solution_simd_wasm_bin.wasm:0x4544e7
+$func251 @ pose_solution_simd_wasm_bin.wasm:0x1d898
+$func221 @ pose_solution_simd_wasm_bin.wasm:0x19049
+(anonymous) @ pose_solution_simd_wasm_bin.js:9
+(anonymous) @ @mediapipe_pose.js?v=436c6e9a:2123
+ua @ @mediapipe_pose.js?v=436c6e9a:193
+next @ @mediapipe_pose.js?v=436c6e9a:210
+b @ @mediapipe_pose.js?v=436c6e9a:227
+Promise.then
+g @ @mediapipe_pose.js?v=436c6e9a:234
+Promise.then
+g @ @mediapipe_pose.js?v=436c6e9a:234
+(anonymous) @ @mediapipe_pose.js?v=436c6e9a:236
+wa @ @mediapipe_pose.js?v=436c6e9a:232
+E @ @mediapipe_pose.js?v=436c6e9a:240
+x.send @ @mediapipe_pose.js?v=436c6e9a:2030
+(anonymous) @ @mediapipe_pose.js?v=436c6e9a:2303
+ua @ @mediapipe_pose.js?v=436c6e9a:193
+next @ @mediapipe_pose.js?v=436c6e9a:210
+(anonymous) @ @mediapipe_pose.js?v=436c6e9a:236
+wa @ @mediapipe_pose.js?v=436c6e9a:232
+E @ @mediapipe_pose.js?v=436c6e9a:240
+x.send @ @mediapipe_pose.js?v=436c6e9a:2302
+(anonymous) @ poseAnalyzer.ts:161
+detectPoseInCurrentFrame @ poseAnalyzer.ts:157
+analyzeVideo @ poseAnalyzer.ts:105
+await in analyzeVideo
+handleVideoSelect @ Home.tsx:109
+await in handleVideoSelect
+(anonymous) @ VideoUploadZone.tsx:67
+setTimeout
+(anonymous) @ VideoUploadZone.tsx:65
+basicStateReducer @ chunk-WERSD76P.js?v=436c6e9a:11703
+updateReducer @ chunk-WERSD76P.js?v=436c6e9a:11794
+updateState @ chunk-WERSD76P.js?v=436c6e9a:12021
+useState @ chunk-WERSD76P.js?v=436c6e9a:12753
+useState @ chunk-3TFVT2CW.js?v=436c6e9a:1066
+VideoUploadZone @ VideoUploadZone.tsx:13
+renderWithHooks @ chunk-WERSD76P.js?v=436c6e9a:11548
+updateFunctionComponent @ chunk-WERSD76P.js?v=436c6e9a:14582
+beginWork @ chunk-WERSD76P.js?v=436c6e9a:15924
+beginWork$1 @ chunk-WERSD76P.js?v=436c6e9a:19753
+performUnitOfWork @ chunk-WERSD76P.js?v=436c6e9a:19198
+workLoopSync @ chunk-WERSD76P.js?v=436c6e9a:19137
+renderRootSync @ chunk-WERSD76P.js?v=436c6e9a:19116
+performConcurrentWorkOnRoot @ chunk-WERSD76P.js?v=436c6e9a:18678
+workLoop @ chunk-WERSD76P.js?v=436c6e9a:197
+flushWork @ chunk-WERSD76P.js?v=436c6e9a:176
+performWorkUntilDeadline @ chunk-WERSD76P.js?v=436c6e9a:384
+injected.js:27 Detected poses in 14 frames
+injected.js:27 Pose analysis complete: {muscularityScore: 63, symmetryScore: 88, conditioningScore: 97, posingScore: 87, aestheticsScore: 86, …}
+injected.js:27 Saving analysis...
+injected.js:27 Analysis created: 34c9b92c-478c-4d16-9ff7-261d7d1a6fe8
+Gladiator-MegaFlexTronic:1 Uncaught (in promise) Error: Could not establish connection. Receiving end does not exist.
