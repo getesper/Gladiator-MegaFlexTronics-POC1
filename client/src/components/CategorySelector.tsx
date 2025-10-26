@@ -38,13 +38,13 @@ export function CategorySelector({ selectedCategory, onCategoryChange }: Categor
             }`}
             data-testid={`button-category-${category.id}`}
           >
-            <div className="flex items-center justify-between gap-2">
-              <div className="space-y-0.5 sm:space-y-1 min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-heading font-semibold truncate">{category.name}</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{category.focus}</p>
+            <div className="flex items-center justify-between gap-1.5 sm:gap-2">
+              <div className="space-y-0.5 sm:space-y-1 min-w-0 flex-1 overflow-hidden">
+                <p className="text-[11px] sm:text-sm font-heading font-semibold truncate">{category.name}</p>
+                <p className="text-[9px] sm:text-xs text-muted-foreground truncate">{category.focus}</p>
               </div>
               {selectedCategory === category.id && (
-                <Badge variant="default" className="bg-primary text-[10px] sm:text-xs flex-shrink-0">
+                <Badge variant="default" className="bg-primary text-[9px] sm:text-xs flex-shrink-0 px-1.5 sm:px-2">
                   Active
                 </Badge>
               )}
