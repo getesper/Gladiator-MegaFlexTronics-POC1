@@ -195,17 +195,16 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
       <video
         ref={videoRef}
         src={videoUrl}
-        className="w-full max-w-full aspect-video object-contain"
+        className="w-full max-w-full h-auto"
         onClick={togglePlay}
       />
       
       <canvas 
         ref={canvasRef}
-        className="absolute inset-0 pointer-events-none opacity-80" 
+        className="absolute top-0 left-0 pointer-events-none opacity-80" 
         style={{ 
           width: '100%', 
           height: '100%',
-          objectFit: 'contain',
           display: showOverlay ? 'block' : 'none'
         }}
       />
