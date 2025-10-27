@@ -92,16 +92,29 @@ interface RadialGaugeProps {
 }
 
 function RadialGauge({ value, label, icon: Icon, size = 80 }: RadialGaugeProps) {
-  const strokeWidth = 6;
+  const strokeWidth = 8;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (value / 100) * circumference;
   const color = getScoreColor(value);
+  
+  // Generate tick marks every 10 degrees (36 ticks total)
+  const ticks = Array.from({ length: 36 }, (_, i) => {
+    const angle = (i * 10) * (Math.PI / 180);
+    const innerRadius = radius - 2;
+    const outerRadius = i % 9 === 0 ? radius + 3 : radius + 1.5; // Longer ticks at 0, 90, 180, 270
+    const x1 = size / 2 + innerRadius * Math.cos(angle);
+    const y1 = size / 2 + innerRadius * Math.sin(angle);
+    const x2 = size / 2 + outerRadius * Math.cos(angle);
+    const y2 = size / 2 + outerRadius * Math.sin(angle);
+    return { x1, y1, x2, y2, major: i % 9 === 0 };
+  });
 
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="flex flex-col items-center gap-1.5">
       <div className="relative" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="transform -rotate-90">
+          {/* Background circle */}
           <circle
             cx={size / 2}
             cy={size / 2}
@@ -109,8 +122,22 @@ function RadialGauge({ value, label, icon: Icon, size = 80 }: RadialGaugeProps) 
             stroke="currentColor"
             strokeWidth={strokeWidth}
             fill="none"
-            className="text-muted/20"
+            className="text-muted/10"
           />
+          {/* Tick marks */}
+          {ticks.map((tick, i) => (
+            <line
+              key={i}
+              x1={tick.x1}
+              y1={tick.y1}
+              x2={tick.x2}
+              y2={tick.y2}
+              stroke="currentColor"
+              strokeWidth={tick.major ? 1.5 : 0.75}
+              className="text-muted-foreground/20"
+            />
+          ))}
+          {/* Progress circle */}
           <circle
             cx={size / 2}
             cy={size / 2}
@@ -121,17 +148,17 @@ function RadialGauge({ value, label, icon: Icon, size = 80 }: RadialGaugeProps) 
             strokeDasharray={circumference}
             strokeDashoffset={offset}
             strokeLinecap="round"
-            className="transition-all duration-500 ease-out"
+            className="transition-all duration-700 ease-out drop-shadow-sm"
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <Icon className="w-3 h-3 mb-0.5 text-muted-foreground" />
-          <span className="text-sm font-bold" style={{ color }}>
+          <Icon className="w-3.5 h-3.5 mb-1 text-muted-foreground" />
+          <span className="text-base font-mono font-semibold tabular-nums" style={{ color }}>
             {value}
           </span>
         </div>
       </div>
-      <span className="text-[10px] text-muted-foreground text-center">{label}</span>
+      <span className="text-[10px] font-medium text-muted-foreground text-center uppercase tracking-wide">{label}</span>
     </div>
   );
 }
@@ -148,7 +175,7 @@ function MuscleGroupCard({ name, data }: MuscleGroupCardProps) {
   
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} data-testid={`collapsible-muscle-${name.toLowerCase()}`}>
-      <Card className="w-full min-w-0 overflow-hidden">
+      <Card className="w-full min-w-0 overflow-hidden border-l-4" style={{ borderLeftColor: getScoreColor(avgScore) }}>
         <CollapsibleTrigger className="w-full">
           <CardHeader className="pb-3 hover-elevate cursor-pointer">
             <div className="flex items-center justify-between gap-2 w-full">
@@ -158,10 +185,10 @@ function MuscleGroupCard({ name, data }: MuscleGroupCardProps) {
                   <CardTitle className="text-sm font-semibold">
                     {muscleGroupDisplayNames[name as keyof typeof muscleGroupDisplayNames]}
                   </CardTitle>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">{scoreLabel}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wide">{scoreLabel}</p>
                 </div>
               </div>
-              <Badge variant={getScoreBadgeVariant(avgScore)} className="text-xs font-bold" data-testid={`badge-score-${name}`}>
+              <Badge variant={getScoreBadgeVariant(avgScore)} className="text-xs font-mono font-bold tabular-nums" data-testid={`badge-score-${name}`}>
                 {avgScore}
               </Badge>
             </div>
@@ -170,7 +197,7 @@ function MuscleGroupCard({ name, data }: MuscleGroupCardProps) {
         
         <CollapsibleContent>
           <CardContent className="space-y-4 pt-0">
-            <div className="grid grid-cols-4 gap-3 p-4 rounded-md bg-muted/30">
+            <div className="grid grid-cols-4 gap-3 p-4 rounded-md bg-muted/10 border border-border">
               <RadialGauge value={data.development} label="Development" icon={Activity} />
               <RadialGauge value={data.definition} label="Definition" icon={Zap} />
               <RadialGauge value={data.symmetry} label="Symmetry" icon={Scale} />
