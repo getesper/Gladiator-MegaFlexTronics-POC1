@@ -88,11 +88,7 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
     const canvas = canvasRef.current;
     const video = videoRef.current;
     
-    if (!canvas || !video || !showOverlay) {
-      if (canvas) {
-        const ctx = canvas.getContext("2d");
-        if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
-      }
+    if (!canvas || !video) {
       return;
     }
 
@@ -108,11 +104,53 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
     // Clear previous drawing
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    if (!showOverlay) return;
+
+    // Draw technical measurement grid
+    ctx.strokeStyle = "rgba(59, 130, 246, 0.15)"; // Electric blue with low opacity
+    ctx.lineWidth = 1;
+    
+    // Vertical grid lines (every 10%)
+    for (let i = 0; i <= 10; i++) {
+      const x = (canvas.width / 10) * i;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, canvas.height);
+      ctx.stroke();
+    }
+    
+    // Horizontal grid lines (every 10%)
+    for (let i = 0; i <= 10; i++) {
+      const y = (canvas.height / 10) * i;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+      ctx.stroke();
+    }
+    
+    // Center crosshair for reference
+    ctx.strokeStyle = "rgba(59, 130, 246, 0.3)";
+    ctx.lineWidth = 1.5;
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    
+    // Vertical center line
+    ctx.beginPath();
+    ctx.moveTo(centerX, 0);
+    ctx.lineTo(centerX, canvas.height);
+    ctx.stroke();
+    
+    // Horizontal center line
+    ctx.beginPath();
+    ctx.moveTo(0, centerY);
+    ctx.lineTo(canvas.width, centerY);
+    ctx.stroke();
+
     // Find pose landmarks closest to current time
     const landmarks = findClosestPose(detectedPoses, currentTime);
     
     if (landmarks) {
-      drawPoseSkeleton(ctx, landmarks, canvas.width, canvas.height, "#00ff88", 3);
+      drawPoseSkeleton(ctx, landmarks, canvas.width, canvas.height, "#3b82f6", 3);
     }
   };
 
@@ -144,7 +182,12 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
+    const ms = Math.floor((seconds % 1) * 1000);
+    return `${mins}:${secs.toString().padStart(2, "0")}.${ms.toString().padStart(3, "0")}`;
+  };
+  
+  const formatFrameNumber = (seconds: number, fps: number = 30) => {
+    return Math.floor(seconds * fps);
   };
 
   return (
@@ -280,11 +323,27 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
       
       {posesDetected !== undefined && (
         <div className="absolute top-4 left-4 flex gap-2">
-          <Badge variant="default" className="bg-primary" data-testid="badge-poses-detected">
+          <Badge variant="default" className="bg-primary border border-primary-foreground/20" data-testid="badge-poses-detected">
             {posesDetected} Pose{posesDetected !== 1 ? 's' : ''} Detected
           </Badge>
         </div>
       )}
+      
+      {/* Technical frame counter overlay */}
+      <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
+        <div className="bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded border border-primary/30">
+          <div className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-0.5">Frame</div>
+          <div className="font-mono text-lg font-semibold text-primary tabular-nums">
+            {formatFrameNumber(currentTime)}
+          </div>
+        </div>
+        <div className="bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded border border-primary/30">
+          <div className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-0.5">Time</div>
+          <div className="font-mono text-sm font-semibold text-white tabular-nums">
+            {formatTime(currentTime)}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
