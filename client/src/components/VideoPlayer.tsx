@@ -18,11 +18,12 @@ interface VideoPlayerProps {
   onFrameCaptureReady?: (captureFrame: () => string | null) => void;
   posesDetected?: number;
   detectedPoses?: DetectedPose[];
+  onSegmentationUpdate?: (stats: Record<string, number> | null) => void;
 }
 
 type OverlayMode = 'skeleton' | 'bodyParts' | 'both' | 'none';
 
-export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, detectedPoses = [] }: VideoPlayerProps) {
+export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, detectedPoses = [], onSegmentationUpdate }: VideoPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -31,6 +32,11 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
   const [segmentationReady, setSegmentationReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  
+  // Performance optimization: Cache segmentation results
+  const lastSegmentationTime = useRef<number>(0);
+  const cachedSegmentation = useRef<any>(null);
+  const SEGMENTATION_THROTTLE_MS = 200; // Run segmentation max 5 times per second
 
   const captureCurrentFrame = (): string | null => {
     const video = videoRef.current;
@@ -166,12 +172,28 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
     ctx.lineTo(canvas.width, centerY);
     ctx.stroke();
 
-    // Draw body part segmentation if enabled
+    // Draw body part segmentation if enabled (with throttling)
     if ((overlayMode === 'bodyParts' || overlayMode === 'both') && segmentationReady && video.videoWidth > 0) {
       try {
-        const segmentation = await bodyPartSegmenter.segmentBodyParts(video);
-        if (segmentation) {
-          bodyPartSegmenter.drawBodyPartSegmentation(ctx, segmentation, 0.5);
+        const now = Date.now();
+        const shouldRunSegmentation = now - lastSegmentationTime.current > SEGMENTATION_THROTTLE_MS;
+        
+        if (shouldRunSegmentation || !cachedSegmentation.current) {
+          const segmentation = await bodyPartSegmenter.segmentBodyParts(video);
+          if (segmentation) {
+            cachedSegmentation.current = segmentation;
+            lastSegmentationTime.current = now;
+            
+            // Calculate and report muscle statistics
+            if (onSegmentationUpdate) {
+              const stats = bodyPartSegmenter.calculateMuscleStats(segmentation);
+              onSegmentationUpdate(stats);
+            }
+          }
+        }
+        
+        if (cachedSegmentation.current) {
+          bodyPartSegmenter.drawBodyPartSegmentation(ctx, cachedSegmentation.current, 0.5);
         }
       } catch (error) {
         console.error('Error drawing body part segmentation:', error);

@@ -251,6 +251,30 @@ export class BodyPartSegmenter {
     
     return 'Unknown';
   }
+  
+  // Calculate muscle region statistics from segmentation
+  calculateMuscleStats(segmentation: BodyPartSegmentation): Record<string, number> {
+    const { data, width, height } = segmentation;
+    const totalPixels = width * height;
+    const musclePixelCounts: Record<string, number> = {};
+    
+    // Count pixels for each muscle group
+    for (let i = 0; i < data.length; i++) {
+      const partId = data[i];
+      if (partId >= 0) {
+        const muscleGroup = this.getMuscleGroupFromPart(partId);
+        musclePixelCounts[muscleGroup] = (musclePixelCounts[muscleGroup] || 0) + 1;
+      }
+    }
+    
+    // Convert to percentages
+    const musclePercentages: Record<string, number> = {};
+    for (const [muscle, count] of Object.entries(musclePixelCounts)) {
+      musclePercentages[muscle] = (count / totalPixels) * 100;
+    }
+    
+    return musclePercentages;
+  }
 }
 
 // Export a singleton instance

@@ -33,9 +33,10 @@ interface AnalysisDashboardProps {
   analysis: VideoAnalysis;
   captureFrame?: (() => string | null) | null;
   isFrameReady?: boolean;
+  muscleStats?: Record<string, number> | null;
 }
 
-export function AnalysisDashboard({ analysis, captureFrame, isFrameReady = false }: AnalysisDashboardProps) {
+export function AnalysisDashboard({ analysis, captureFrame, isFrameReady = false, muscleStats }: AnalysisDashboardProps) {
   const [selectedCategory, setSelectedCategory] = useState(analysis.category);
   const [visionModel, setVisionModel] = useState("gpt-4o");
   const [coachingModel, setCoachingModel] = useState("claude-sonnet-4");
@@ -260,7 +261,7 @@ export function AnalysisDashboard({ analysis, captureFrame, isFrameReady = false
                 />
               </div>
 
-              <MuscleRegionAnalysis />
+              <MuscleRegionAnalysis muscleStats={muscleStats} />
               <PosingCard poseScores={analysis.poseScores as Record<string, number>} />
               <DetailedScoreBreakdown analysis={analysis} />
               <JudgingNotes notes={(analysis.judgeNotes as any[]) || []} />

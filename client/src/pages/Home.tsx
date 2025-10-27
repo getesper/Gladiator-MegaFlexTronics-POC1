@@ -19,6 +19,7 @@ export default function Home() {
   const [analysisStatus, setAnalysisStatus] = useState<string>(""); 
   const [captureFrame, setCaptureFrame] = useState<(() => string | null) | null>(null);
   const [isFrameReady, setIsFrameReady] = useState(false);
+  const [muscleStats, setMuscleStats] = useState<Record<string, number> | null>(null);
   const { toast } = useToast();
   
   // Load analysis from URL parameter if present
@@ -193,6 +194,7 @@ export default function Home() {
               <VideoPlayer 
                 videoUrl={currentAnalysis.videoUrl}
                 onFrameCaptureReady={handleFrameCaptureReady}
+                onSegmentationUpdate={setMuscleStats}
                 posesDetected={
                   (currentAnalysis.detectedPoses as any[])?.length || 
                   Object.keys(currentAnalysis.poseScores as Record<string, number>).length
@@ -207,6 +209,7 @@ export default function Home() {
               analysis={currentAnalysis}
               captureFrame={captureFrame}
               isFrameReady={isFrameReady}
+              muscleStats={muscleStats}
             />
           </div>
         </div>

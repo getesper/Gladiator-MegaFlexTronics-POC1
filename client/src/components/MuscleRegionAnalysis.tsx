@@ -9,18 +9,39 @@ interface MuscleRegion {
   color: string;
 }
 
-const MUSCLE_REGIONS: MuscleRegion[] = [
-  { name: "Biceps", coverage: 0, development: "Good", color: "#4ECDC4" },
-  { name: "Triceps", coverage: 0, development: "Excellent", color: "#45B7D1" },
-  { name: "Forearms", coverage: 0, development: "Good", color: "#FFEAA7" },
-  { name: "Quadriceps", coverage: 0, development: "Excellent", color: "#00B894" },
-  { name: "Hamstrings", coverage: 0, development: "Very Good", color: "#00D2D3" },
-  { name: "Calves", coverage: 0, development: "Good", color: "#FD79A8" },
-  { name: "Chest & Abs", coverage: 0, development: "Excellent", color: "#6C5CE7" },
-  { name: "Back", coverage: 0, development: "Very Good", color: "#A29BFE" },
-];
+const MUSCLE_COLORS: Record<string, string> = {
+  "Biceps": "#4ECDC4",
+  "Triceps": "#45B7D1",
+  "Forearms": "#FFEAA7",
+  "Quadriceps": "#00B894",
+  "Hamstrings": "#00D2D3",
+  "Calves": "#FD79A8",
+  "Chest & Abs": "#6C5CE7",
+  "Back": "#A29BFE",
+};
 
-export function MuscleRegionAnalysis() {
+interface MuscleRegionAnalysisProps {
+  muscleStats?: Record<string, number> | null;
+}
+
+export function MuscleRegionAnalysis({ muscleStats }: MuscleRegionAnalysisProps) {
+  // Generate muscle regions from stats or show placeholders
+  const muscleRegions: MuscleRegion[] = muscleStats
+    ? Object.entries(muscleStats)
+        .filter(([name]) => name !== 'Unknown')
+        .map(([name, coverage]) => ({
+          name,
+          coverage,
+          development: coverage > 8 ? "Excellent" : coverage > 5 ? "Very Good" : coverage > 3 ? "Good" : "Moderate",
+          color: MUSCLE_COLORS[name] || "#999999",
+        }))
+        .sort((a, b) => b.coverage - a.coverage)
+    : Object.entries(MUSCLE_COLORS).map(([name, color]) => ({
+        name,
+        coverage: 0,
+        development: "Awaiting Analysis",
+        color,
+      }));
   return (
     <Card className="border-primary/20 bg-card">
       <CardHeader className="flex flex-row items-center justify-between gap-1 space-y-0 pb-3">
@@ -34,11 +55,13 @@ export function MuscleRegionAnalysis() {
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="text-xs text-muted-foreground mb-3">
-          Body segmentation identifies 24 distinct muscle regions for detailed analysis
+          {muscleStats 
+            ? "Real-time body segmentation identifying 24 distinct muscle regions"
+            : "Enable 'Muscles' overlay mode to see muscle region analysis"}
         </div>
         
         <div className="space-y-2">
-          {MUSCLE_REGIONS.map((region) => (
+          {muscleRegions.map((region) => (
             <div 
               key={region.name} 
               className="flex items-center justify-between p-2 rounded bg-muted/30 hover-elevate"
@@ -51,6 +74,11 @@ export function MuscleRegionAnalysis() {
                 <span className="text-sm font-medium">{region.name}</span>
               </div>
               <div className="flex items-center gap-3">
+                {region.coverage > 0 && (
+                  <span className="text-xs font-mono text-muted-foreground">
+                    {region.coverage.toFixed(1)}%
+                  </span>
+                )}
                 <Badge 
                   variant="outline" 
                   className="text-[10px] font-mono"
