@@ -12,16 +12,21 @@ interface HeaderProps {
 
 export function Header({ onNewAnalysis, isAnalyzing, uploadProgress, analysisStatus }: HeaderProps) {
   return (
-    <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex-shrink-0">
+    <header className="border-b border-border bg-card flex-shrink-0 shadow-sm">
       <div className="flex h-14 sm:h-16 items-center justify-between px-3 sm:px-4 lg:px-6 gap-2 sm:gap-4">
         <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
             <div className="rounded-md bg-primary p-1.5 sm:p-2 flex-shrink-0">
               <Dumbbell className="h-4 w-4 sm:h-5 sm:w-5 text-primary-foreground" />
             </div>
-            <h1 className="font-heading text-sm sm:text-base lg:text-xl font-bold truncate" data-testid="text-app-title">
-              GLADIATOR MEGAFLEXTRONICS
-            </h1>
+            <div className="flex flex-col">
+              <h1 className="font-heading text-sm sm:text-base lg:text-lg font-bold tracking-tight leading-tight" data-testid="text-app-title">
+                GLADIATOR MEGAFLEXTRONICS
+              </h1>
+              <span className="font-mono text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider">
+                Biomechanics Analysis v2.4.1
+              </span>
+            </div>
           </div>
           
           {isAnalyzing && (
