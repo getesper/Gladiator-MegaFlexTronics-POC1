@@ -103,8 +103,8 @@ export class BodyPartSegmenter {
       this.isSegmenting = true;
       const segmentation = await this.net.segmentPersonParts(imageElement, {
         flipHorizontal: false,
-        internalResolution: 'medium',  // Balanced for real-time performance
-        segmentationThreshold: 0.5,     // Standard threshold for good coverage
+        internalResolution: 'high',    // Higher resolution for better edge detection
+        segmentationThreshold: 0.7,     // Higher threshold to exclude background (was 0.5)
       });
       
       return segmentation as BodyPartSegmentation;
