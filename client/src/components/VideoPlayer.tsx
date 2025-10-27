@@ -5,6 +5,7 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { drawPoseSkeleton, findClosestPose } from "@/lib/skeletonDrawer";
 import { bodyPartSegmenter, type BodyPartSegmentation } from "@/lib/bodySegmentation";
+import { realtimePoseDetector, type PoseLandmark } from "@/lib/realtimePoseDetector";
 
 interface DetectedPose {
   poseName: string;
@@ -30,12 +31,14 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
   const [showOverlay, setShowOverlay] = useState(true);
   const [overlayMode, setOverlayMode] = useState<OverlayMode>('skeleton');
   const [segmentationReady, setSegmentationReady] = useState(false);
+  const [poseDetectorReady, setPoseDetectorReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
-  // Performance optimization: Cache segmentation results
+  // Performance optimization: Cache segmentation and pose results
   const lastSegmentationTime = useRef<number>(0);
   const cachedSegmentation = useRef<any>(null);
+  const realtimePoseLandmarks = useRef<PoseLandmark[] | null>(null);
   const SEGMENTATION_THROTTLE_MS = 200; // Run segmentation max 5 times per second
 
   const captureCurrentFrame = (): string | null => {
@@ -76,19 +79,37 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
     };
   }, [onFrameCaptureReady]);
 
-  // Initialize body part segmenter (balanced for real-time performance)
+  // Initialize body part segmenter and real-time pose detector
   useEffect(() => {
-    const initSegmenter = async () => {
+    const initModels = async () => {
       try {
-        await bodyPartSegmenter.initialize();
+        // Initialize both models in parallel
+        await Promise.all([
+          bodyPartSegmenter.initialize(),
+          realtimePoseDetector.initialize()
+        ]);
         setSegmentationReady(true);
-        console.log('Body part segmenter initialized (MobileNetV1, balanced for real-time performance)');
+        setPoseDetectorReady(true);
+        console.log('Body part segmenter and real-time pose detector initialized');
       } catch (error) {
-        console.error('Failed to initialize body part segmenter:', error);
+        console.error('Failed to initialize models:', error);
+        // Fall back to just segmenter if pose detector fails
+        try {
+          await bodyPartSegmenter.initialize();
+          setSegmentationReady(true);
+          console.log('Body part segmenter initialized (pose detector unavailable)');
+        } catch (e) {
+          console.error('Failed to initialize segmenter:', e);
+        }
       }
     };
     
-    initSegmenter();
+    initModels();
+
+    // Cleanup on unmount
+    return () => {
+      realtimePoseDetector.cleanup();
+    };
   }, []);
 
   useEffect(() => {
@@ -108,7 +129,7 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
       video.removeEventListener("timeupdate", handleTimeUpdate);
       video.removeEventListener("loadedmetadata", handleLoadedMetadata);
     };
-  }, [detectedPoses, showOverlay, overlayMode, segmentationReady]);
+  }, [detectedPoses, showOverlay, overlayMode, segmentationReady, poseDetectorReady]);
 
   const drawOverlay = async (currentTime: number) => {
     const canvas = canvasRef.current;
@@ -200,8 +221,29 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
       }
     }
 
-    // Draw skeleton overlay from pre-analyzed MediaPipe landmarks
-    if (overlayMode === 'skeleton' || overlayMode === 'both') {
+    // Draw skeleton overlay using real-time pose detection for smooth tracking
+    if ((overlayMode === 'skeleton' || overlayMode === 'both') && poseDetectorReady && video.videoWidth > 0) {
+      try {
+        // Detect pose in real-time for smooth tracking
+        const poseLandmarks = await realtimePoseDetector.detectPose(video);
+        if (poseLandmarks) {
+          realtimePoseLandmarks.current = poseLandmarks;
+        }
+        
+        // Draw the most recent pose
+        if (realtimePoseLandmarks.current) {
+          drawPoseSkeleton(ctx, realtimePoseLandmarks.current, canvas.width, canvas.height, "#00ff00", 2);
+        }
+      } catch (error) {
+        console.error('Error with real-time pose detection:', error);
+        // Fallback to pre-computed poses if real-time fails
+        const landmarks = findClosestPose(detectedPoses, currentTime);
+        if (landmarks) {
+          drawPoseSkeleton(ctx, landmarks, canvas.width, canvas.height, "#3b82f6", 3);
+        }
+      }
+    } else if (overlayMode === 'skeleton' || overlayMode === 'both') {
+      // Fallback to pre-computed poses if real-time detector not ready
       const landmarks = findClosestPose(detectedPoses, currentTime);
       if (landmarks) {
         drawPoseSkeleton(ctx, landmarks, canvas.width, canvas.height, "#3b82f6", 3);
