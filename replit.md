@@ -29,9 +29,11 @@ The project adopts a monorepo structure with shared code, client, server, and da
 
 **Recent Updates (October 2025)**:
 - Integrated TensorFlow.js BodyPix 2.0 for 24-part body segmentation
+- **Optimized BodyPix for maximum accuracy**: ResNet50 architecture (vs MobileNetV1), quantBytes: 4 (higher precision), high internal resolution, segmentation threshold 0.6 for more confident predictions
 - Added MuscleRegionAnalysis component displaying color-coded muscle groups
-- Implemented tri-mode video overlay system (Skeleton/Muscles/Both)
-- Enhanced VideoPlayer with overlay mode controls and segmentation initialization
+- Implemented tri-mode video overlay system (Skeleton/Muscles/Both/None)
+- Enhanced VideoPlayer with overlay mode controls and segmentation initialization with throttling (200ms) for performance
+- **Pose detection model evaluation**: Researched MoveNet Thunder as alternative to MediaPipe BlazePose; determined MediaPipe's 33 landmarks essential for bodybuilding metrics (torso detail, hand/foot positioning, waist measurements) vs MoveNet's 17 core joints. Maintaining MediaPipe for schema consistency across upload analysis and playback visualization.
 
 ## External Dependencies
 
