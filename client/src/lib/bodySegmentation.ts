@@ -103,8 +103,8 @@ export class BodyPartSegmenter {
       this.isSegmenting = true;
       const segmentation = await this.net.segmentPersonParts(imageElement, {
         flipHorizontal: false,
-        internalResolution: 'high',    // Higher resolution for better edge detection
-        segmentationThreshold: 0.7,     // Higher threshold to exclude background (was 0.5)
+        internalResolution: 'medium',   // Medium for better alignment (high can cause misalignment)
+        segmentationThreshold: 0.7,     // Higher threshold to exclude background
       });
       
       return segmentation as BodyPartSegmentation;
@@ -149,8 +149,8 @@ export class BodyPartSegmenter {
   ): void {
     const { data, width, height } = segmentation;
     
-    // Create ImageData for the segmentation overlay
-    const imageData = ctx.createImageData(width, height);
+    // Create ImageData at the same resolution as the segmentation
+    const imageData = new ImageData(width, height);
     
     for (let i = 0; i < data.length; i++) {
       const partId = data[i];
@@ -168,14 +168,18 @@ export class BodyPartSegmenter {
       }
     }
     
-    // Draw to canvas
+    // Use imageSmoothingEnabled for better scaling quality
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    
+    // Create temporary canvas at segmentation resolution
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = width;
     tempCanvas.height = height;
     const tempCtx = tempCanvas.getContext('2d')!;
     tempCtx.putImageData(imageData, 0, 0);
     
-    // Scale to match canvas size
+    // Scale to exactly match canvas size with proper alignment
     ctx.drawImage(tempCanvas, 0, 0, ctx.canvas.width, ctx.canvas.height);
   }
   
