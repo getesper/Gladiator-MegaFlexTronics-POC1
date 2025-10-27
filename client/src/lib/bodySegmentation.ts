@@ -79,14 +79,14 @@ export class BodyPartSegmenter {
   async initialize(): Promise<void> {
     if (this.net) return;
     
-    console.log('Loading BodyPix model...');
+    console.log('Loading BodyPix model (optimized for accuracy)...');
     this.net = await bodyPix.load({
-      architecture: 'MobileNetV1',
-      outputStride: 16,
-      multiplier: 0.75,
-      quantBytes: 2
+      architecture: 'ResNet50',  // Higher accuracy than MobileNetV1
+      outputStride: 16,          // Balance of speed and accuracy
+      multiplier: 1.0,           // Maximum multiplier for best accuracy
+      quantBytes: 4              // Higher precision (4 bytes instead of 2)
     });
-    console.log('BodyPix model loaded successfully');
+    console.log('BodyPix model loaded successfully with optimized settings');
   }
   
   async segmentBodyParts(
@@ -101,8 +101,8 @@ export class BodyPartSegmenter {
     try {
       const segmentation = await this.net.segmentPersonParts(imageElement, {
         flipHorizontal: false,
-        internalResolution: 'medium',
-        segmentationThreshold: 0.5,
+        internalResolution: 'high',  // Higher resolution for better accuracy
+        segmentationThreshold: 0.6,   // Higher threshold for more confident predictions
       });
       
       return segmentation as BodyPartSegmentation;
