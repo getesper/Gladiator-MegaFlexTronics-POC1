@@ -1,9 +1,10 @@
-import { Play, Pause, SkipBack, SkipForward, Maximize, Eye, EyeOff } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Maximize, Eye, EyeOff, User, Users } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { drawPoseSkeleton, findClosestPose } from "@/lib/skeletonDrawer";
+import { bodyPartSegmenter, type BodyPartSegmentation } from "@/lib/bodySegmentation";
 
 interface DetectedPose {
   poseName: string;
@@ -19,11 +20,15 @@ interface VideoPlayerProps {
   detectedPoses?: DetectedPose[];
 }
 
+type OverlayMode = 'skeleton' | 'bodyParts' | 'both' | 'none';
+
 export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, detectedPoses = [] }: VideoPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [showOverlay, setShowOverlay] = useState(true);
+  const [overlayMode, setOverlayMode] = useState<OverlayMode>('skeleton');
+  const [segmentationReady, setSegmentationReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -65,13 +70,28 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
     };
   }, [onFrameCaptureReady]);
 
+  // Initialize body part segmenter
+  useEffect(() => {
+    const initSegmenter = async () => {
+      try {
+        await bodyPartSegmenter.initialize();
+        setSegmentationReady(true);
+        console.log('Body part segmenter initialized');
+      } catch (error) {
+        console.error('Failed to initialize body part segmenter:', error);
+      }
+    };
+    
+    initSegmenter();
+  }, []);
+
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
     const handleTimeUpdate = () => {
       setCurrentTime(video.currentTime);
-      drawSkeletonOverlay(video.currentTime);
+      drawOverlay(video.currentTime);
     };
     const handleLoadedMetadata = () => setDuration(video.duration);
 
@@ -82,9 +102,9 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
       video.removeEventListener("timeupdate", handleTimeUpdate);
       video.removeEventListener("loadedmetadata", handleLoadedMetadata);
     };
-  }, [detectedPoses, showOverlay]);
+  }, [detectedPoses, showOverlay, overlayMode, segmentationReady]);
 
-  const drawSkeletonOverlay = (currentTime: number) => {
+  const drawOverlay = async (currentTime: number) => {
     const canvas = canvasRef.current;
     const video = videoRef.current;
     
@@ -104,10 +124,10 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
     // Clear previous drawing
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (!showOverlay) return;
+    if (!showOverlay || overlayMode === 'none') return;
 
-    // Draw technical measurement grid
-    ctx.strokeStyle = "rgba(59, 130, 246, 0.15)"; // Electric blue with low opacity
+    // Draw technical measurement grid (always shown when overlay is on)
+    ctx.strokeStyle = "rgba(59, 130, 246, 0.15)";
     ctx.lineWidth = 1;
     
     // Vertical grid lines (every 10%)
@@ -146,11 +166,24 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
     ctx.lineTo(canvas.width, centerY);
     ctx.stroke();
 
-    // Find pose landmarks closest to current time
-    const landmarks = findClosestPose(detectedPoses, currentTime);
-    
-    if (landmarks) {
-      drawPoseSkeleton(ctx, landmarks, canvas.width, canvas.height, "#3b82f6", 3);
+    // Draw body part segmentation if enabled
+    if ((overlayMode === 'bodyParts' || overlayMode === 'both') && segmentationReady && video.videoWidth > 0) {
+      try {
+        const segmentation = await bodyPartSegmenter.segmentBodyParts(video);
+        if (segmentation) {
+          bodyPartSegmenter.drawBodyPartSegmentation(ctx, segmentation, 0.5);
+        }
+      } catch (error) {
+        console.error('Error drawing body part segmentation:', error);
+      }
+    }
+
+    // Draw skeleton overlay if enabled
+    if (overlayMode === 'skeleton' || overlayMode === 'both') {
+      const landmarks = findClosestPose(detectedPoses, currentTime);
+      if (landmarks) {
+        drawPoseSkeleton(ctx, landmarks, canvas.width, canvas.height, "#3b82f6", 3);
+      }
     }
   };
 
@@ -296,20 +329,59 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
           </div>
           
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowOverlay(!showOverlay)}
-              className="h-8 text-white hover:bg-white/20 gap-1"
-              data-testid="button-toggle-overlay"
-            >
-              {showOverlay ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
-              <span className="text-xs">Pose Overlay</span>
-            </Button>
+            <div className="flex items-center gap-1 bg-black/40 rounded px-1">
+              <Button
+                variant={overlayMode === 'skeleton' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setOverlayMode('skeleton')}
+                className="h-7 text-white hover:bg-white/20 gap-1 text-xs"
+                data-testid="button-skeleton-mode"
+                title="Show skeleton overlay"
+              >
+                <User className="h-3 w-3" />
+                Skeleton
+              </Button>
+              
+              <Button
+                variant={overlayMode === 'bodyParts' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setOverlayMode('bodyParts')}
+                className="h-7 text-white hover:bg-white/20 gap-1 text-xs"
+                data-testid="button-bodyparts-mode"
+                title="Show body part segmentation"
+                disabled={!segmentationReady}
+              >
+                <Users className="h-3 w-3" />
+                Muscles
+              </Button>
+              
+              <Button
+                variant={overlayMode === 'both' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setOverlayMode('both')}
+                className="h-7 text-white hover:bg-white/20 gap-1 text-xs"
+                data-testid="button-both-mode"
+                title="Show both overlays"
+                disabled={!segmentationReady}
+              >
+                Both
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowOverlay(!showOverlay)}
+                className="h-7 w-7 text-white hover:bg-white/20"
+                data-testid="button-toggle-overlay"
+                title={showOverlay ? 'Hide overlay' : 'Show overlay'}
+              >
+                {showOverlay ? (
+                  <EyeOff className="h-3 w-3" />
+                ) : (
+                  <Eye className="h-3 w-3" />
+                )}
+              </Button>
+            </div>
             
             <Button
               variant="ghost"
