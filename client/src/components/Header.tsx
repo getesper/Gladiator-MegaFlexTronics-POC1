@@ -24,7 +24,7 @@ export function Header({ onNewAnalysis, isAnalyzing, uploadProgress, analysisSta
                 GLADIATOR MEGAFLEXTRONICS
               </h1>
               <span className="font-mono text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider">
-                Biomechanics Analysis v2.4.1
+                Biomechanics Analysis v2.5.0 BETA
               </span>
             </div>
           </div>
