@@ -299,7 +299,7 @@ export function AnalysisDashboard({ analysis, captureFrame, isFrameReady = false
             <TabsContent value="progress" className="mt-0 space-y-4 w-full min-w-0">
               <Card data-testid="card-pose-identification" className="w-full min-w-0 border-primary/20 bg-primary/5">
                 <CardHeader className="pb-3">
-                  <h3 className="text-sm font-heading font-semibold">VLM Pose Identification</h3>
+                  <h3 className="text-sm font-heading font-semibold">GLadiator VLM Pose Identification</h3>
                   <p className="text-xs text-muted-foreground">
                     Use Vision Language Models to accurately identify poses from video frames
                   </p>
