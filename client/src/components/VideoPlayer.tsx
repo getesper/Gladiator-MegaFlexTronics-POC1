@@ -195,17 +195,20 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
       <video
         ref={videoRef}
         src={videoUrl}
-        className="w-full max-w-full aspect-video"
+        className="w-full max-w-full aspect-video object-contain"
         onClick={togglePlay}
       />
       
-      {showOverlay && (
-        <canvas 
-          ref={canvasRef}
-          className="absolute inset-0 pointer-events-none opacity-80" 
-          style={{ width: '100%', height: '100%' }}
-        />
-      )}
+      <canvas 
+        ref={canvasRef}
+        className="absolute inset-0 pointer-events-none opacity-80" 
+        style={{ 
+          width: '100%', 
+          height: '100%',
+          objectFit: 'contain',
+          display: showOverlay ? 'block' : 'none'
+        }}
+      />
       
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 space-y-3">
         <div className="flex items-center gap-2">
