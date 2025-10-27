@@ -18,6 +18,7 @@ import { PoseSnapshots } from "./PoseSnapshots";
 import { AIModelSelector } from "./AIModelSelector";
 import { AIAnalysisResults } from "./AIAnalysisResults";
 import { DetailedMuscleAnalysis } from "./DetailedMuscleAnalysis";
+import { MuscleRegionAnalysis } from "./MuscleRegionAnalysis";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -259,6 +260,7 @@ export function AnalysisDashboard({ analysis, captureFrame, isFrameReady = false
                 />
               </div>
 
+              <MuscleRegionAnalysis />
               <PosingCard poseScores={analysis.poseScores as Record<string, number>} />
               <DetailedScoreBreakdown analysis={analysis} />
               <JudgingNotes notes={(analysis.judgeNotes as any[]) || []} />
