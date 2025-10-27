@@ -246,11 +246,11 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
   };
 
   return (
-    <div className="relative bg-black rounded-lg overflow-hidden w-full max-w-full" data-testid="video-player">
+    <div className="relative bg-black rounded-lg overflow-hidden w-full" data-testid="video-player">
       <video
         ref={videoRef}
         src={videoUrl}
-        className="w-full max-w-full h-auto"
+        className="w-full h-auto max-h-[80vh]"
         onClick={togglePlay}
       />
       
