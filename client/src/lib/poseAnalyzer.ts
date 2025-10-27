@@ -1,5 +1,11 @@
 // Real-time pose analysis using MediaPipe
-import { Pose, Results } from "@mediapipe/pose";
+// MediaPipe is loaded globally via CDN scripts in index.html
+declare const Pose: any;
+
+interface Results {
+  poseLandmarks?: any;
+  image: HTMLCanvasElement;
+}
 
 interface PoseKeypoints {
   nose: { x: number; y: number; z: number; visibility: number };
@@ -48,14 +54,20 @@ interface AnalysisResult {
 }
 
 export class VideoPoseAnalyzer {
-  private pose: Pose | null = null;
+  private pose: any | null = null;
   private videoElement: HTMLVideoElement | null = null;
   private canvas: HTMLCanvasElement | null = null;
   
   async initialize(): Promise<void> {
+    // Ensure MediaPipe library is loaded before creating Pose instance
+    if (typeof Pose === 'undefined') {
+      throw new Error('MediaPipe Pose library not loaded. Please refresh the page.');
+    }
+
     this.pose = new Pose({
-      locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+      locateFile: (file: string) => {
+        // Use specific version for stability in production
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/${file}`;
       },
     });
 
