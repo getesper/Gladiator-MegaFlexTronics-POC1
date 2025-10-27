@@ -5,6 +5,7 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { drawPoseSkeleton, findClosestPose } from "@/lib/skeletonDrawer";
 import { bodyPartSegmenter, type BodyPartSegmentation } from "@/lib/bodySegmentation";
+import { moveNetAnalyzer, type MoveNetPose } from "@/lib/moveNetAnalyzer";
 
 interface DetectedPose {
   poseName: string;
@@ -30,13 +31,17 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
   const [showOverlay, setShowOverlay] = useState(true);
   const [overlayMode, setOverlayMode] = useState<OverlayMode>('skeleton');
   const [segmentationReady, setSegmentationReady] = useState(false);
+  const [moveNetReady, setMoveNetReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
-  // Performance optimization: Cache segmentation results
+  // Performance optimization: Cache segmentation and pose results
   const lastSegmentationTime = useRef<number>(0);
   const cachedSegmentation = useRef<any>(null);
+  const lastPoseTime = useRef<number>(0);
+  const cachedPose = useRef<MoveNetPose | null>(null);
   const SEGMENTATION_THROTTLE_MS = 200; // Run segmentation max 5 times per second
+  const POSE_THROTTLE_MS = 100; // Run pose detection max 10 times per second
 
   const captureCurrentFrame = (): string | null => {
     const video = videoRef.current;
@@ -76,19 +81,24 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
     };
   }, [onFrameCaptureReady]);
 
-  // Initialize body part segmenter
+  // Initialize body part segmenter and MoveNet
   useEffect(() => {
-    const initSegmenter = async () => {
+    const initModels = async () => {
       try {
-        await bodyPartSegmenter.initialize();
+        // Initialize both models in parallel for faster startup
+        await Promise.all([
+          bodyPartSegmenter.initialize(),
+          moveNetAnalyzer.initialize()
+        ]);
         setSegmentationReady(true);
-        console.log('Body part segmenter initialized');
+        setMoveNetReady(true);
+        console.log('Body part segmenter and MoveNet initialized (optimized for accuracy)');
       } catch (error) {
-        console.error('Failed to initialize body part segmenter:', error);
+        console.error('Failed to initialize models:', error);
       }
     };
     
-    initSegmenter();
+    initModels();
   }, []);
 
   useEffect(() => {
@@ -108,7 +118,7 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
       video.removeEventListener("timeupdate", handleTimeUpdate);
       video.removeEventListener("loadedmetadata", handleLoadedMetadata);
     };
-  }, [detectedPoses, showOverlay, overlayMode, segmentationReady]);
+  }, [detectedPoses, showOverlay, overlayMode, segmentationReady, moveNetReady]);
 
   const drawOverlay = async (currentTime: number) => {
     const canvas = canvasRef.current;
@@ -200,12 +210,32 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
       }
     }
 
-    // Draw skeleton overlay if enabled
-    if (overlayMode === 'skeleton' || overlayMode === 'both') {
-      const landmarks = findClosestPose(detectedPoses, currentTime);
-      if (landmarks) {
-        drawPoseSkeleton(ctx, landmarks, canvas.width, canvas.height, "#3b82f6", 3);
+    // Draw skeleton overlay if enabled (using MoveNet for real-time detection)
+    if ((overlayMode === 'skeleton' || overlayMode === 'both') && moveNetReady && video.videoWidth > 0) {
+      try {
+        const now = Date.now();
+        const shouldRunPoseDetection = now - lastPoseTime.current > POSE_THROTTLE_MS;
+        
+        if (shouldRunPoseDetection || !cachedPose.current) {
+          const pose = await moveNetAnalyzer.detectPose(video);
+          if (pose) {
+            cachedPose.current = pose;
+            lastPoseTime.current = now;
+          }
+        }
+        
+        if (cachedPose.current) {
+          moveNetAnalyzer.drawSkeleton(ctx, cachedPose.current, canvas.width, canvas.height);
+        }
+      } catch (error) {
+        console.error('Error detecting pose with MoveNet:', error);
       }
+      
+      // Optionally also draw pre-computed MediaPipe poses for comparison
+      // const landmarks = findClosestPose(detectedPoses, currentTime);
+      // if (landmarks) {
+      //   drawPoseSkeleton(ctx, landmarks, canvas.width, canvas.height, "#ff0000", 2);
+      // }
     }
   };
 
