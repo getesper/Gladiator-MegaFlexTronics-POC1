@@ -53,7 +53,7 @@
 
 ### Navigation Header
 - Fixed top bar: h-14, white background, subtle bottom border
-- Logo section: Left-aligned with monospace version number (v2.4.1)
+- Logo section: Left-aligned with monospace version number (v2.5.0 BETA)
 - Status indicators: Processing state with clinical icons
 - Action bar: Right-aligned upload, export, settings buttons
 - Breadcrumb trail: Center-positioned for analysis context
