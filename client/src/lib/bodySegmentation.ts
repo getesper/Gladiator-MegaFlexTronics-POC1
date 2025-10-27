@@ -75,18 +75,19 @@ export const BODY_PART_COLORS: Record<number, string> = {
 
 export class BodyPartSegmenter {
   private net: bodyPix.BodyPix | null = null;
+  private isSegmenting: boolean = false; // Prevent concurrent segmentation calls
   
   async initialize(): Promise<void> {
     if (this.net) return;
     
-    console.log('Loading BodyPix model (optimized for accuracy)...');
+    console.log('Loading BodyPix model (balanced for accuracy and performance)...');
     this.net = await bodyPix.load({
-      architecture: 'ResNet50',  // Higher accuracy than MobileNetV1
-      outputStride: 16,          // Balance of speed and accuracy
-      multiplier: 1.0,           // Maximum multiplier for best accuracy
-      quantBytes: 4              // Higher precision (4 bytes instead of 2)
+      architecture: 'MobileNetV1',  // Faster than ResNet50 for real-time use
+      outputStride: 16,              // Balance of speed and accuracy
+      multiplier: 0.75,              // Good balance for browser performance
+      quantBytes: 2                  // Standard precision, better performance
     });
-    console.log('BodyPix model loaded successfully with optimized settings');
+    console.log('BodyPix model loaded successfully');
   }
   
   async segmentBodyParts(
@@ -96,19 +97,22 @@ export class BodyPartSegmenter {
       await this.initialize();
     }
     
-    if (!this.net) return null;
+    if (!this.net || this.isSegmenting) return null;
     
     try {
+      this.isSegmenting = true;
       const segmentation = await this.net.segmentPersonParts(imageElement, {
         flipHorizontal: false,
-        internalResolution: 'high',  // Higher resolution for better accuracy
-        segmentationThreshold: 0.6,   // Higher threshold for more confident predictions
+        internalResolution: 'medium',  // Balanced for real-time performance
+        segmentationThreshold: 0.5,     // Standard threshold for good coverage
       });
       
       return segmentation as BodyPartSegmentation;
     } catch (error) {
       console.error('Error segmenting body parts:', error);
       return null;
+    } finally {
+      this.isSegmenting = false;
     }
   }
   

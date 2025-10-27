@@ -76,13 +76,13 @@ export function VideoPlayer({ videoUrl, onFrameCaptureReady, posesDetected, dete
     };
   }, [onFrameCaptureReady]);
 
-  // Initialize optimized body part segmenter
+  // Initialize body part segmenter (balanced for real-time performance)
   useEffect(() => {
     const initSegmenter = async () => {
       try {
         await bodyPartSegmenter.initialize();
         setSegmentationReady(true);
-        console.log('Body part segmenter initialized (ResNet50, high resolution, optimized for accuracy)');
+        console.log('Body part segmenter initialized (MobileNetV1, balanced for real-time performance)');
       } catch (error) {
         console.error('Failed to initialize body part segmenter:', error);
       }
